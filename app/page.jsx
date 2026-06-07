@@ -221,6 +221,7 @@ export default function HomePage() {
   const [loginPin, setLoginPin] = useState("");
   const [loginError, setLoginError] = useState("");
   const [loadingProfile, setLoadingProfile] = useState(true);
+  const [showRomaji, setShowRomaji] = useState(true);
 
   const [activeTab, setActiveTab] = useState("home");
   const [progress, setProgress] = useState(defaultProgress);
@@ -322,6 +323,17 @@ export default function HomePage() {
     setAccessKey(parsed.accessKey);
     loadProgress(parsed.profile.id, parsed.accessKey).finally(() => setLoadingProfile(false));
   }, []);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("nihongo-show-romaji");
+    if (saved !== null) {
+      setShowRomaji(saved === "true");
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem("nihongo-show-romaji", String(showRomaji));
+  }, [showRomaji]);
 
   async function api(path, options = {}) {
     const headers = {
@@ -529,15 +541,21 @@ export default function HomePage() {
   }
 
   return (
-    <main className="mobileShell">
+    <main className={showRomaji ? "mobileShell" : "mobileShell romajiOff"}>
       <header className="appHeader">
         <div>
           <p className="eyebrow">Level {selectedNode.level}</p>
           <h1>{selectedNode.title}</h1>
         </div>
-        <button className="iconButton" type="button" onClick={logout} aria-label="로그아웃">
-          <LogOut size={18} />
-        </button>
+        <div className="headerActions">
+          <button className={showRomaji ? "romajiToggle on" : "romajiToggle"} type="button" onClick={() => setShowRomaji((value) => !value)} aria-pressed={showRomaji}>
+            <span>영어발음</span>
+            <strong>{showRomaji ? "ON" : "OFF"}</strong>
+          </button>
+          <button className="iconButton" type="button" onClick={logout} aria-label="로그아웃">
+            <LogOut size={18} />
+          </button>
+        </div>
       </header>
 
       {activeTab === "home" && (
@@ -881,7 +899,7 @@ export default function HomePage() {
                       return (
                         <article key={`${currentKanaSet.id}-${kana}`}>
                           <strong>{kana}</strong>
-                          <span>{reading}</span>
+                          <span className="romajiText">{reading}</span>
                           <small>{meaning}</small>
                         </article>
                       );
@@ -905,7 +923,7 @@ export default function HomePage() {
                     {kanaQuizAnswer && (
                       <div className={kanaQuizPassed ? "kanaQuizFeedback correctBox" : "kanaQuizFeedback retryBox"}>
                         <strong>{kanaQuizPassed ? "정답입니다" : "다시 확인해보세요"}</strong>
-                        <span>정답: {kanaQuiz.correct[0]} · {kanaQuiz.correct[1]} · {kanaQuiz.correct[2]}</span>
+                        <span>정답: {kanaQuiz.correct[0]} · {showRomaji ? `${kanaQuiz.correct[1]} · ` : ""}{kanaQuiz.correct[2]}</span>
                       </div>
                     )}
                     <button className="primaryButton full" type="button" onClick={nextKanaQuiz}>다음 문제</button>
@@ -928,7 +946,7 @@ export default function HomePage() {
                     <article key={word.id}>
                       <div>
                         <strong>{word.jp}</strong>
-                        <span>{word.reading}</span>
+                        <span className="romajiText">{word.reading}</span>
                       </div>
                       <p>{word.kr}</p>
                       <small>Level {word.minLevel} · {word.category}</small>
@@ -953,7 +971,7 @@ export default function HomePage() {
                       <div className="expressionHeader">
                         <span>{expression.category}</span>
                         <strong>{expression.pattern}</strong>
-                        <small>{expression.reading}</small>
+                        <small className="romajiText">{expression.reading}</small>
                       </div>
                       <p>{expression.meaning}</p>
                       <div className="slotList" aria-label="끼워 넣을 수 있는 단어 종류">
@@ -997,7 +1015,7 @@ export default function HomePage() {
                   <span>{currentSoloGame.prompt}</span>
                   <GameGuide steps={currentSoloGame.howTo} />
                   <strong>{currentWord.jp}</strong>
-                  <small>{currentWord.reading}</small>
+                  <small className="romajiText">{currentWord.reading}</small>
                   <div className="choiceList">
                     {wordChoices.map((choice) => (
                       <button key={choice} type="button" className={wordAnswer === choice ? "choice selected" : "choice"} onClick={() => setWordAnswer(choice)}>
