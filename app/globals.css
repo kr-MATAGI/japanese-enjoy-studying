@@ -997,6 +997,36 @@ p {
   font-weight: 900;
 }
 
+.gameGuide {
+  display: grid;
+  gap: 7px;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #f4f7fb;
+  color: var(--ink);
+  text-align: left;
+}
+
+.gameGuide span {
+  color: var(--plum);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.gameGuide ol {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.gameGuide li {
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
 .groupGrid {
   display: grid;
   gap: 10px;

@@ -127,6 +127,23 @@ function buildQuizSession(node) {
   }));
 }
 
+function GameGuide({ steps }) {
+  if (!steps?.length) {
+    return null;
+  }
+
+  return (
+    <div className="gameGuide">
+      <span>플레이 방법</span>
+      <ol>
+        {steps.map((step) => (
+          <li key={step}>{step}</li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
 function scoreQuiz(answers, quiz) {
   return quiz.reduce((score, item, index) => score + (answers[index] === item.answer ? 1 : 0), 0);
 }
@@ -191,6 +208,7 @@ export default function HomePage() {
   const unlockedLevel = Math.max(...skillNodes.filter((node) => progress.unlockedNodeIds.includes(node.id)).map((node) => node.level), 0);
   const availableWords = wordDeck.filter((word) => word.minLevel <= unlockedLevel);
   const currentWord = availableWords[wordIndex % availableWords.length] || wordDeck[0];
+  const currentSoloGame = soloGames[soloGameIndex] || soloGames[0];
   const currentKanaSet = kanaReference.find((set) => set.id === kanaSetId) || kanaReference[0];
   const currentKanaDisplay = useMemo(() => buildKanaDisplay(currentKanaSet), [currentKanaSet]);
   const wordCategories = useMemo(() => ["all", ...Array.from(new Set(wordDeck.map((word) => word.category)))], []);
@@ -799,7 +817,8 @@ export default function HomePage() {
                   ))}
                 </div>
                 <article className="wordGame">
-                  <span>{soloGames[soloGameIndex].prompt}</span>
+                  <span>{currentSoloGame.prompt}</span>
+                  <GameGuide steps={currentSoloGame.howTo} />
                   <strong>{currentWord.jp}</strong>
                   <small>{currentWord.reading}</small>
                   <div className="choiceList">
@@ -824,6 +843,7 @@ export default function HomePage() {
                     <Users size={18} />
                     <strong>{game.title}</strong>
                     <p>{game.prompt}</p>
+                    <GameGuide steps={game.howTo} />
                   </article>
                 ))}
               </div>
@@ -831,6 +851,7 @@ export default function HomePage() {
 
             {gameSection === "liar" && (
               <div className="liarForm">
+                <GameGuide steps={groupGames.find((game) => game.id === "liar")?.howTo} />
                 <div className="fieldGrid">
                   <label>시드<input value={liarSeed} onChange={(event) => setLiarSeed(event.target.value.toUpperCase())} /></label>
                   <label>총인원<input type="number" min="3" max="12" value={liarTotal} onChange={(event) => setLiarTotal(Number(event.target.value))} /></label>
