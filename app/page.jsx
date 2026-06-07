@@ -140,6 +140,16 @@ function buildKanaDisplay(set) {
   };
 }
 
+function buildKanaQuiz(set, index) {
+  const correct = set.items[index % set.items.length];
+  const distractors = sampleItems(set.items.filter((item) => item[0] !== correct[0]), 3);
+
+  return {
+    correct,
+    choices: shuffleItems([correct, ...distractors]),
+  };
+}
+
 function shuffleItems(items) {
   return [...items].sort(() => Math.random() - 0.5);
 }
@@ -240,6 +250,9 @@ export default function HomePage() {
   const [liarTopicId, setLiarTopicId] = useState(liarTopics[0].id);
   const [vocabMode, setVocabMode] = useState("kana");
   const [kanaSetId, setKanaSetId] = useState(kanaReference[0].id);
+  const [kanaViewMode, setKanaViewMode] = useState("study");
+  const [kanaQuizIndex, setKanaQuizIndex] = useState(0);
+  const [kanaQuizAnswer, setKanaQuizAnswer] = useState("");
   const [wordCategory, setWordCategory] = useState("all");
   const [expressionCategory, setExpressionCategory] = useState("all");
 
@@ -263,6 +276,8 @@ export default function HomePage() {
   const reactionCard = reactionCards[groupRound % reactionCards.length];
   const currentKanaSet = kanaReference.find((set) => set.id === kanaSetId) || kanaReference[0];
   const currentKanaDisplay = useMemo(() => buildKanaDisplay(currentKanaSet), [currentKanaSet]);
+  const kanaQuiz = useMemo(() => buildKanaQuiz(currentKanaSet, kanaQuizIndex), [currentKanaSet, kanaQuizIndex]);
+  const kanaQuizPassed = kanaQuizAnswer === kanaQuiz.correct[0];
   const wordCategories = useMemo(() => ["all", ...Array.from(new Set(wordDeck.map((word) => word.category)))], []);
   const visibleVocabWords = useMemo(
     () => (wordCategory === "all" ? wordDeck : wordDeck.filter((word) => word.category === wordCategory)),
@@ -434,6 +449,17 @@ export default function HomePage() {
 
   function toggleBingoCell(index) {
     setBingoChecked((items) => (items.includes(index) ? items.filter((item) => item !== index) : [...items, index]));
+  }
+
+  function selectKanaSet(id) {
+    setKanaSetId(id);
+    setKanaQuizIndex(0);
+    setKanaQuizAnswer("");
+  }
+
+  function nextKanaQuiz() {
+    setKanaQuizIndex((value) => value + 1);
+    setKanaQuizAnswer("");
   }
 
   function resetChatTurn() {
@@ -821,7 +847,7 @@ export default function HomePage() {
               <>
                 <div className="vocabSelector">
                   {kanaReference.map((set) => (
-                    <button key={set.id} className={kanaSetId === set.id ? "selected" : ""} type="button" onClick={() => setKanaSetId(set.id)}>
+                    <button key={set.id} className={kanaSetId === set.id ? "selected" : ""} type="button" onClick={() => selectKanaSet(set.id)}>
                       {set.title}
                     </button>
                   ))}
@@ -830,22 +856,52 @@ export default function HomePage() {
                   <strong>{currentKanaSet.title}</strong>
                   <p>{currentKanaSet.description}</p>
                 </div>
-                <div className="kanaReferenceGrid" style={{ "--kana-columns": currentKanaDisplay.columns }}>
-                  {currentKanaDisplay.cells.map((item, index) => {
-                    if (!item) {
-                      return <div key={`${currentKanaSet.id}-blank-${index}`} className="kanaPlaceholder" aria-hidden="true" />;
-                    }
-
-                    const [kana, reading, meaning] = item;
-                    return (
-                      <article key={`${currentKanaSet.id}-${kana}`}>
-                        <strong>{kana}</strong>
-                        <span>{reading}</span>
-                        <small>{meaning}</small>
-                      </article>
-                    );
-                  })}
+                <div className="kanaModeSwitch">
+                  <button className={kanaViewMode === "study" ? "on" : ""} type="button" onClick={() => setKanaViewMode("study")}>학습 보기</button>
+                  <button className={kanaViewMode === "test" ? "on" : ""} type="button" onClick={() => { setKanaViewMode("test"); setKanaQuizAnswer(""); }}>암기 테스트</button>
                 </div>
+
+                {kanaViewMode === "study" && (
+                  <div className="kanaReferenceGrid" style={{ "--kana-columns": currentKanaDisplay.columns }}>
+                    {currentKanaDisplay.cells.map((item, index) => {
+                      if (!item) {
+                        return <div key={`${currentKanaSet.id}-blank-${index}`} className="kanaPlaceholder" aria-hidden="true" />;
+                      }
+
+                      const [kana, reading, meaning] = item;
+                      return (
+                        <article key={`${currentKanaSet.id}-${kana}`}>
+                          <strong>{kana}</strong>
+                          <span>{reading}</span>
+                          <small>{meaning}</small>
+                        </article>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {kanaViewMode === "test" && (
+                  <article className="kanaQuizCard">
+                    <span>{currentKanaSet.title} · {kanaQuizIndex + 1}번째 문제</span>
+                    <strong>{kanaQuiz.correct[0]}</strong>
+                    <p>이 글자는 어떻게 읽을까요?</p>
+                    <div className="kanaQuizChoices">
+                      {kanaQuiz.choices.map(([kana, reading, meaning]) => (
+                        <button key={`${kana}-${reading}`} className={kanaQuizAnswer === kana ? "selected" : ""} type="button" onClick={() => setKanaQuizAnswer(kana)}>
+                          <strong>{reading}</strong>
+                          <small>{meaning}</small>
+                        </button>
+                      ))}
+                    </div>
+                    {kanaQuizAnswer && (
+                      <div className={kanaQuizPassed ? "kanaQuizFeedback correctBox" : "kanaQuizFeedback retryBox"}>
+                        <strong>{kanaQuizPassed ? "정답입니다" : "다시 확인해보세요"}</strong>
+                        <span>정답: {kanaQuiz.correct[0]} · {kanaQuiz.correct[1]} · {kanaQuiz.correct[2]}</span>
+                      </div>
+                    )}
+                    <button className="primaryButton full" type="button" onClick={nextKanaQuiz}>다음 문제</button>
+                  </article>
+                )}
               </>
             )}
 
