@@ -498,6 +498,93 @@ p {
   font-weight: 900;
 }
 
+.grammarLecture {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #ffffff;
+}
+
+.grammarLecture h3 {
+  margin-bottom: 0;
+  font-size: 1.2rem;
+}
+
+.lectureSummary {
+  margin-bottom: 0;
+  border-left: 4px solid var(--plum);
+  border-radius: 8px;
+  padding: 11px 12px;
+  background: #f5f1ff;
+  line-height: 1.6;
+  font-weight: 800;
+}
+
+.conceptList {
+  display: grid;
+  gap: 8px;
+}
+
+.conceptList span {
+  border-left: 4px solid var(--blue);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #edf5ff;
+  line-height: 1.55;
+  font-weight: 800;
+}
+
+.patternLectureGrid {
+  display: grid;
+  gap: 10px;
+}
+
+.patternLectureGrid article,
+.lectureColumns article {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fbfcfe;
+}
+
+.patternLectureGrid span {
+  color: var(--teal);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.patternLectureGrid strong {
+  display: block;
+  margin: 6px 0 8px;
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.patternLectureGrid p,
+.lectureColumns p {
+  margin-bottom: 7px;
+  line-height: 1.5;
+  font-weight: 800;
+}
+
+.patternLectureGrid p:last-child,
+.lectureColumns p:last-child {
+  margin-bottom: 0;
+}
+
+.lectureColumns {
+  display: grid;
+  gap: 10px;
+}
+
+.lectureColumns h4 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
 .actionBar {
   position: sticky;
   bottom: 74px;

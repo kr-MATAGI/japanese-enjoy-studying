@@ -452,6 +452,43 @@ export default function HomePage() {
                     <span key={word}>{word}</span>
                   ))}
                 </div>
+                {selectedNode.grammarLecture && (
+                  <section className="grammarLecture">
+                    <p className="eyebrow">문법 강의</p>
+                    <h3>{selectedNode.title} 핵심 정리</h3>
+                    <p className="lectureSummary">{selectedNode.grammarLecture.summary}</p>
+                    <div className="conceptList">
+                      {selectedNode.grammarLecture.concepts.map((concept) => (
+                        <span key={concept}>{concept}</span>
+                      ))}
+                    </div>
+                    <div className="patternLectureGrid">
+                      {selectedNode.grammarLecture.patterns.map((pattern) => (
+                        <article key={pattern.name}>
+                          <span>{pattern.name}</span>
+                          <strong>{pattern.formula}</strong>
+                          {pattern.examples.map((example) => (
+                            <p key={example}>{example}</p>
+                          ))}
+                        </article>
+                      ))}
+                    </div>
+                    <div className="lectureColumns">
+                      <article>
+                        <h4>자주 틀리는 부분</h4>
+                        {selectedNode.grammarLecture.pitfalls.map((pitfall) => (
+                          <p key={pitfall}>{pitfall}</p>
+                        ))}
+                      </article>
+                      <article>
+                        <h4>연습 과제</h4>
+                        {selectedNode.grammarLecture.drills.map((drill) => (
+                          <p key={drill}>{drill}</p>
+                        ))}
+                      </article>
+                    </div>
+                  </section>
+                )}
                 <div className="actionBar">
                   <button className="ghostButton" type="button" onClick={() => setSessionSeed((value) => value + 1)}>
                     <RotateCcw size={18} />
