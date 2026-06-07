@@ -140,8 +140,9 @@ function buildKanaDisplay(set) {
   };
 }
 
-function buildKanaQuiz(set, index) {
-  const correct = set.items[index % set.items.length];
+function buildKanaQuiz(set, items, index) {
+  const quizItems = items.length > 0 ? items : set.items;
+  const correct = quizItems[index % quizItems.length];
   const distractors = sampleItems(set.items.filter((item) => item[0] !== correct[0]), 3);
 
   return {
@@ -252,6 +253,7 @@ export default function HomePage() {
   const [kanaSetId, setKanaSetId] = useState(kanaReference[0].id);
   const [kanaViewMode, setKanaViewMode] = useState("study");
   const [kanaQuizIndex, setKanaQuizIndex] = useState(0);
+  const [kanaQuizSeed, setKanaQuizSeed] = useState(1);
   const [kanaQuizAnswer, setKanaQuizAnswer] = useState("");
   const [wordCategory, setWordCategory] = useState("all");
   const [expressionCategory, setExpressionCategory] = useState("all");
@@ -276,7 +278,8 @@ export default function HomePage() {
   const reactionCard = reactionCards[groupRound % reactionCards.length];
   const currentKanaSet = kanaReference.find((set) => set.id === kanaSetId) || kanaReference[0];
   const currentKanaDisplay = useMemo(() => buildKanaDisplay(currentKanaSet), [currentKanaSet]);
-  const kanaQuiz = useMemo(() => buildKanaQuiz(currentKanaSet, kanaQuizIndex), [currentKanaSet, kanaQuizIndex]);
+  const kanaQuizItems = useMemo(() => shuffleItems(currentKanaSet.items), [currentKanaSet, kanaQuizSeed]);
+  const kanaQuiz = useMemo(() => buildKanaQuiz(currentKanaSet, kanaQuizItems, kanaQuizIndex), [currentKanaSet, kanaQuizItems, kanaQuizIndex]);
   const kanaQuizPassed = kanaQuizAnswer === kanaQuiz.correct[0];
   const wordCategories = useMemo(() => ["all", ...Array.from(new Set(wordDeck.map((word) => word.category)))], []);
   const visibleVocabWords = useMemo(
@@ -454,11 +457,17 @@ export default function HomePage() {
   function selectKanaSet(id) {
     setKanaSetId(id);
     setKanaQuizIndex(0);
+    setKanaQuizSeed((value) => value + 1);
     setKanaQuizAnswer("");
   }
 
   function nextKanaQuiz() {
-    setKanaQuizIndex((value) => value + 1);
+    if (kanaQuizIndex + 1 >= currentKanaSet.items.length) {
+      setKanaQuizIndex(0);
+      setKanaQuizSeed((value) => value + 1);
+    } else {
+      setKanaQuizIndex((value) => value + 1);
+    }
     setKanaQuizAnswer("");
   }
 
