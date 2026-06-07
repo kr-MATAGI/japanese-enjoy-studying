@@ -745,32 +745,44 @@ p {
 
 .kanaReferenceGrid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(var(--kana-columns, 5), minmax(0, 1fr));
+  gap: 6px;
 }
 
 .kanaReferenceGrid article {
   display: grid;
-  min-height: 86px;
+  min-width: 0;
+  min-height: 74px;
   place-items: center;
-  padding: 8px 4px;
+  padding: 7px 2px;
+  text-align: center;
 }
 
 .kanaReferenceGrid strong {
-  font-size: 1.7rem;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: clamp(1.18rem, 6vw, 1.55rem);
   line-height: 1;
 }
 
 .kanaReferenceGrid span {
+  max-width: 100%;
+  overflow-wrap: anywhere;
   color: var(--teal);
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-weight: 900;
 }
 
 .kanaReferenceGrid small {
+  max-width: 100%;
+  overflow-wrap: anywhere;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.7rem;
   font-weight: 900;
+}
+
+.kanaPlaceholder {
+  min-height: 74px;
 }
 
 .wordList {

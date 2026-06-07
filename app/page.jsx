@@ -13,7 +13,7 @@ import {
   Languages,
   Lock,
   LogOut,
-  Map,
+  Map as MapIcon,
   MessageCircle,
   RotateCcw,
   ShieldCheck,
@@ -36,13 +36,72 @@ import {
 
 const tabs = [
   { id: "home", label: "홈", icon: Home },
-  { id: "roadmap", label: "로드맵", icon: Map },
+  { id: "roadmap", label: "로드맵", icon: MapIcon },
   { id: "learn", label: "학습", icon: BookOpen },
   { id: "test", label: "테스트", icon: Brain },
   { id: "talk", label: "대화", icon: MessageCircle },
   { id: "vocab", label: "단어장", icon: Languages },
   { id: "games", label: "게임", icon: Gamepad2 },
 ];
+
+const kanaChartLayouts = {
+  "hiragana-basic": {
+    columns: 5,
+    rows: [
+      ["あ", "い", "う", "え", "お"],
+      ["か", "き", "く", "け", "こ"],
+      ["さ", "し", "す", "せ", "そ"],
+      ["た", "ち", "つ", "て", "と"],
+      ["な", "に", "ぬ", "ね", "の"],
+      ["は", "ひ", "ふ", "へ", "ほ"],
+      ["ま", "み", "む", "め", "も"],
+      ["や", null, "ゆ", null, "よ"],
+      ["ら", "り", "る", "れ", "ろ"],
+      ["わ", null, null, null, "を"],
+      ["ん", null, null, null, null],
+    ],
+  },
+  "katakana-basic": {
+    columns: 5,
+    rows: [
+      ["ア", "イ", "ウ", "エ", "オ"],
+      ["カ", "キ", "ク", "ケ", "コ"],
+      ["サ", "シ", "ス", "セ", "ソ"],
+      ["タ", "チ", "ツ", "テ", "ト"],
+      ["ナ", "ニ", "ヌ", "ネ", "ノ"],
+      ["ハ", "ヒ", "フ", "ヘ", "ホ"],
+      ["マ", "ミ", "ム", "メ", "モ"],
+      ["ヤ", null, "ユ", null, "ヨ"],
+      ["ラ", "リ", "ル", "レ", "ロ"],
+      ["ワ", null, null, null, "ヲ"],
+      ["ン", null, null, null, null],
+    ],
+  },
+};
+
+const kanaColumnCounts = {
+  "hiragana-dakuon": 5,
+  "katakana-dakuon": 5,
+  youon: 3,
+  "sokuon-chouon": 2,
+};
+
+function buildKanaDisplay(set) {
+  const layout = kanaChartLayouts[set.id];
+
+  if (layout) {
+    const itemByKana = new Map(set.items.map((item) => [item[0], item]));
+    return {
+      columns: layout.columns,
+      cells: layout.rows.flatMap((row) => row.map((kana) => (kana ? itemByKana.get(kana) : null))),
+    };
+  }
+
+  return {
+    columns: kanaColumnCounts[set.id] || 5,
+    cells: set.items,
+  };
+}
 
 function shuffleItems(items) {
   return [...items].sort(() => Math.random() - 0.5);
@@ -133,6 +192,7 @@ export default function HomePage() {
   const availableWords = wordDeck.filter((word) => word.minLevel <= unlockedLevel);
   const currentWord = availableWords[wordIndex % availableWords.length] || wordDeck[0];
   const currentKanaSet = kanaReference.find((set) => set.id === kanaSetId) || kanaReference[0];
+  const currentKanaDisplay = useMemo(() => buildKanaDisplay(currentKanaSet), [currentKanaSet]);
   const wordCategories = useMemo(() => ["all", ...Array.from(new Set(wordDeck.map((word) => word.category)))], []);
   const visibleVocabWords = useMemo(
     () => (wordCategory === "all" ? wordDeck : wordDeck.filter((word) => word.category === wordCategory)),
@@ -674,14 +734,21 @@ export default function HomePage() {
                   <strong>{currentKanaSet.title}</strong>
                   <p>{currentKanaSet.description}</p>
                 </div>
-                <div className="kanaReferenceGrid">
-                  {currentKanaSet.items.map(([kana, reading, meaning]) => (
-                    <article key={`${currentKanaSet.id}-${kana}`}>
-                      <strong>{kana}</strong>
-                      <span>{reading}</span>
-                      <small>{meaning}</small>
-                    </article>
-                  ))}
+                <div className="kanaReferenceGrid" style={{ "--kana-columns": currentKanaDisplay.columns }}>
+                  {currentKanaDisplay.cells.map((item, index) => {
+                    if (!item) {
+                      return <div key={`${currentKanaSet.id}-blank-${index}`} className="kanaPlaceholder" aria-hidden="true" />;
+                    }
+
+                    const [kana, reading, meaning] = item;
+                    return (
+                      <article key={`${currentKanaSet.id}-${kana}`}>
+                        <strong>{kana}</strong>
+                        <span>{reading}</span>
+                        <small>{meaning}</small>
+                      </article>
+                    );
+                  })}
                 </div>
               </>
             )}
