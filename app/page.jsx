@@ -264,7 +264,7 @@ export default function HomePage() {
     return (
       <main className="loginShell">
         <section className="loginHero">
-          <Image src="/japanese-study-banner.png" alt="일본어 학습 카드" fill priority sizes="100vw" />
+          <Image src="/japanese-study-banner.png" alt="일본어 학습 카드" fill priority sizes="(max-width: 760px) 100vw, 760px" />
           <div />
         </section>
         <form className="loginCard" onSubmit={handleLogin}>
