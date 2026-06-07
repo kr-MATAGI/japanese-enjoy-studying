@@ -191,6 +191,10 @@ p {
   gap: 12px;
 }
 
+.screenStack > * {
+  min-width: 0;
+}
+
 .welcomeCard {
   position: relative;
   min-height: 250px;
@@ -300,11 +304,13 @@ p {
 }
 
 .sectionCard {
+  min-width: 0;
   padding: 16px;
 }
 
 .sectionHeader {
   display: flex;
+  min-width: 0;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
@@ -432,7 +438,9 @@ p {
 .speechBox,
 .wordGame,
 .groupGrid article,
-.liarResult {
+.liarResult,
+.kanaReferenceGrid article,
+.wordList article {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #ffffff;
@@ -674,6 +682,131 @@ p {
   color: var(--muted);
 }
 
+.countBadge {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0 10px;
+  background: #edf2ff;
+  color: #264487;
+  font-size: 0.82rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.vocabCard .segmented {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.vocabSelector {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 0 10px;
+}
+
+.vocabSelector button {
+  flex: 0 0 auto;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 12px;
+  background: #ffffff;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.vocabSelector button.selected {
+  border-color: var(--teal);
+  background: #e9f8f5;
+  color: var(--teal);
+}
+
+.vocabIntro {
+  margin-bottom: 12px;
+  border-left: 4px solid var(--plum);
+  border-radius: 8px;
+  padding: 12px;
+  background: #f5f1ff;
+}
+
+.vocabIntro strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.vocabIntro p {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.5;
+  font-weight: 800;
+}
+
+.kanaReferenceGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.kanaReferenceGrid article {
+  display: grid;
+  min-height: 86px;
+  place-items: center;
+  padding: 8px 4px;
+}
+
+.kanaReferenceGrid strong {
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.kanaReferenceGrid span {
+  color: var(--teal);
+  font-size: 0.85rem;
+  font-weight: 900;
+}
+
+.kanaReferenceGrid small {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.wordList {
+  display: grid;
+  gap: 8px;
+}
+
+.wordList article {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 10px;
+  align-items: center;
+  padding: 12px;
+}
+
+.wordList strong {
+  display: block;
+  font-size: 1.25rem;
+  line-height: 1.25;
+}
+
+.wordList span,
+.wordList small {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.wordList p {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  margin-bottom: 0;
+  font-weight: 900;
+  text-align: right;
+}
+
 .chatTrainer {
   display: grid;
   gap: 12px;
@@ -907,7 +1040,7 @@ p {
   z-index: 10;
   display: grid;
   width: min(calc(100% - 18px), 742px);
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(7, 1fr);
   gap: 4px;
   transform: translateX(-50%);
   border: 1px solid var(--line);
@@ -926,7 +1059,7 @@ p {
   border-color: transparent;
   background: transparent;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
 }
 
 .bottomTabs button.active {

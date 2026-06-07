@@ -10,6 +10,7 @@ import {
   Dice5,
   Gamepad2,
   Home,
+  Languages,
   Lock,
   LogOut,
   Map,
@@ -24,6 +25,7 @@ import {
 import {
   chatScenarios,
   groupGames,
+  kanaReference,
   levelRoadmap,
   liarTopics,
   skillNodes,
@@ -38,6 +40,7 @@ const tabs = [
   { id: "learn", label: "학습", icon: BookOpen },
   { id: "test", label: "테스트", icon: Brain },
   { id: "talk", label: "대화", icon: MessageCircle },
+  { id: "vocab", label: "단어장", icon: Languages },
   { id: "games", label: "게임", icon: Gamepad2 },
 ];
 
@@ -117,6 +120,9 @@ export default function HomePage() {
   const [liarTotal, setLiarTotal] = useState(4);
   const [liarPlayer, setLiarPlayer] = useState(1);
   const [liarTopicId, setLiarTopicId] = useState(liarTopics[0].id);
+  const [vocabMode, setVocabMode] = useState("kana");
+  const [kanaSetId, setKanaSetId] = useState(kanaReference[0].id);
+  const [wordCategory, setWordCategory] = useState("all");
 
   const selectedNode = skillNodes.find((item) => item.id === selectedNodeId) || skillNodes[0];
   const selectedIndex = skillNodes.findIndex((item) => item.id === selectedNode.id);
@@ -126,6 +132,12 @@ export default function HomePage() {
   const unlockedLevel = Math.max(...skillNodes.filter((node) => progress.unlockedNodeIds.includes(node.id)).map((node) => node.level), 0);
   const availableWords = wordDeck.filter((word) => word.minLevel <= unlockedLevel);
   const currentWord = availableWords[wordIndex % availableWords.length] || wordDeck[0];
+  const currentKanaSet = kanaReference.find((set) => set.id === kanaSetId) || kanaReference[0];
+  const wordCategories = useMemo(() => ["all", ...Array.from(new Set(wordDeck.map((word) => word.category)))], []);
+  const visibleVocabWords = useMemo(
+    () => (wordCategory === "all" ? wordDeck : wordDeck.filter((word) => word.category === wordCategory)),
+    [wordCategory]
+  );
   const wordChoices = useMemo(() => {
     const distractors = sampleItems(availableWords.filter((word) => word.kr !== currentWord.kr), 3).map((word) => word.kr);
     return shuffleItems([currentWord.kr, ...distractors]);
@@ -629,6 +641,73 @@ export default function HomePage() {
                   </button>
                 </div>
               </div>
+            )}
+          </section>
+        </section>
+      )}
+
+      {activeTab === "vocab" && (
+        <section className="screenStack">
+          <section className="sectionCard vocabCard">
+            <div className="sectionHeader">
+              <div>
+                <p className="eyebrow">Reference</p>
+                <h2>단어장</h2>
+              </div>
+              <span className="countBadge">{vocabMode === "kana" ? currentKanaSet.items.length : visibleVocabWords.length}개</span>
+            </div>
+            <div className="segmented">
+              <button className={vocabMode === "kana" ? "on" : ""} type="button" onClick={() => setVocabMode("kana")}>필수 문자</button>
+              <button className={vocabMode === "words" ? "on" : ""} type="button" onClick={() => setVocabMode("words")}>생활 단어</button>
+            </div>
+
+            {vocabMode === "kana" && (
+              <>
+                <div className="vocabSelector">
+                  {kanaReference.map((set) => (
+                    <button key={set.id} className={kanaSetId === set.id ? "selected" : ""} type="button" onClick={() => setKanaSetId(set.id)}>
+                      {set.title}
+                    </button>
+                  ))}
+                </div>
+                <div className="vocabIntro">
+                  <strong>{currentKanaSet.title}</strong>
+                  <p>{currentKanaSet.description}</p>
+                </div>
+                <div className="kanaReferenceGrid">
+                  {currentKanaSet.items.map(([kana, reading, meaning]) => (
+                    <article key={`${currentKanaSet.id}-${kana}`}>
+                      <strong>{kana}</strong>
+                      <span>{reading}</span>
+                      <small>{meaning}</small>
+                    </article>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {vocabMode === "words" && (
+              <>
+                <div className="vocabSelector">
+                  {wordCategories.map((category) => (
+                    <button key={category} className={wordCategory === category ? "selected" : ""} type="button" onClick={() => setWordCategory(category)}>
+                      {category === "all" ? "전체" : category}
+                    </button>
+                  ))}
+                </div>
+                <div className="wordList">
+                  {visibleVocabWords.map((word) => (
+                    <article key={word.id}>
+                      <div>
+                        <strong>{word.jp}</strong>
+                        <span>{word.reading}</span>
+                      </div>
+                      <p>{word.kr}</p>
+                      <small>Level {word.minLevel} · {word.category}</small>
+                    </article>
+                  ))}
+                </div>
+              </>
             )}
           </section>
         </section>
