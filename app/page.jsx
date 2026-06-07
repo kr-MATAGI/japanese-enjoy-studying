@@ -22,6 +22,7 @@ import {
   Users,
 } from "lucide-react";
 import {
+  chatScenarios,
   groupGames,
   levelRoadmap,
   liarTopics,
@@ -102,6 +103,12 @@ export default function HomePage() {
   const [testResult, setTestResult] = useState(null);
 
   const [topicIndex, setTopicIndex] = useState(0);
+  const [talkMode, setTalkMode] = useState("topic");
+  const [chatIndex, setChatIndex] = useState(0);
+  const [chatStep, setChatStep] = useState(0);
+  const [chatTokens, setChatTokens] = useState([]);
+  const [chatFeedback, setChatFeedback] = useState(null);
+  const [chatChoiceSeed, setChatChoiceSeed] = useState(1);
   const [gameSection, setGameSection] = useState("solo");
   const [soloGameIndex, setSoloGameIndex] = useState(0);
   const [wordIndex, setWordIndex] = useState(0);
@@ -126,6 +133,12 @@ export default function HomePage() {
   const studySession = useMemo(() => buildStudySession(selectedNode), [selectedNode, sessionSeed]);
   const quizSession = useMemo(() => buildQuizSession(selectedNode), [selectedNode, sessionSeed]);
   const currentTopic = talkTopics[topicIndex % talkTopics.length];
+  const currentChat = chatScenarios[chatIndex % chatScenarios.length];
+  const currentChatTurn = currentChat.turns[chatStep % currentChat.turns.length];
+  const chatChoices = useMemo(
+    () => shuffleItems([...currentChatTurn.target, ...currentChatTurn.distractors]),
+    [currentChatTurn, chatChoiceSeed]
+  );
   const liarTopic = liarTopics.find((topic) => topic.id === liarTopicId) || liarTopics[0];
   const liarNumber = (hashString(`${liarSeed}:${liarTopicId}:${liarTotal}`) % liarTotal) + 1;
   const liarWord = liarTopic.words[hashString(`${liarSeed}:${liarTopicId}:word`) % liarTopic.words.length];
@@ -254,6 +267,30 @@ export default function HomePage() {
 
   function startGeneratedSeed() {
     setLiarSeed(Math.random().toString(36).slice(2, 8).toUpperCase());
+  }
+
+  function resetChatTurn() {
+    setChatTokens([]);
+    setChatFeedback(null);
+    setChatChoiceSeed((value) => value + 1);
+  }
+
+  function checkChatAnswer() {
+    const isCorrect = chatTokens.join(" ") === currentChatTurn.target.join(" ");
+    setChatFeedback({
+      correct: isCorrect,
+      message: isCorrect ? "좋아요. 문맥에 맞는 답장입니다." : `정답: ${currentChatTurn.target.join(" ")}`,
+    });
+  }
+
+  function nextChatTurn() {
+    if (chatStep + 1 < currentChat.turns.length) {
+      setChatStep((value) => value + 1);
+    } else {
+      setChatIndex((value) => (value + 1) % chatScenarios.length);
+      setChatStep(0);
+    }
+    resetChatTurn();
   }
 
   if (loadingProfile) {
@@ -481,25 +518,81 @@ export default function HomePage() {
       {activeTab === "talk" && (
         <section className="screenStack">
           <section className="sectionCard talkCard">
-            <p className="eyebrow">{currentTopic.category}</p>
-            <h2>{currentTopic.topic}</h2>
-            <div className="speechBox">
-              <span>질문</span>
-              <strong>{currentTopic.question}</strong>
-              <p>{currentTopic.korean}</p>
+            <div className="segmented">
+              <button className={talkMode === "topic" ? "on" : ""} type="button" onClick={() => setTalkMode("topic")}>주제</button>
+              <button className={talkMode === "chat" ? "on" : ""} type="button" onClick={() => setTalkMode("chat")}>채팅 조립</button>
             </div>
-            <div className="speechBox">
-              <span>시작 답변</span>
-              <strong>{currentTopic.starter}</strong>
-              <p>{currentTopic.followUp}</p>
-            </div>
-            <div className="chipRow">
-              {currentTopic.vocab.map((item) => <span key={item}>{item}</span>)}
-            </div>
-            <button className="primaryButton full" type="button" onClick={() => setTopicIndex((value) => (value + 1) % talkTopics.length)}>
-              <Dice5 size={18} />
-              다음 주제
-            </button>
+            {talkMode === "topic" && (
+              <>
+                <p className="eyebrow">{currentTopic.category}</p>
+                <h2>{currentTopic.topic}</h2>
+                <div className="speechBox">
+                  <span>질문</span>
+                  <strong>{currentTopic.question}</strong>
+                  <p>{currentTopic.korean}</p>
+                </div>
+                <div className="speechBox">
+                  <span>시작 답변</span>
+                  <strong>{currentTopic.starter}</strong>
+                  <p>{currentTopic.followUp}</p>
+                </div>
+                <div className="chipRow">
+                  {currentTopic.vocab.map((item) => <span key={item}>{item}</span>)}
+                </div>
+                <button className="primaryButton full" type="button" onClick={() => setTopicIndex((value) => (value + 1) % talkTopics.length)}>
+                  <Dice5 size={18} />
+                  다음 주제
+                </button>
+              </>
+            )}
+            {talkMode === "chat" && (
+              <div className="chatTrainer">
+                <div>
+                  <p className="eyebrow">{currentChat.category} · {chatStep + 1}/{currentChat.turns.length}</p>
+                  <h2>{currentChat.title}</h2>
+                </div>
+                <div className="chatWindow" aria-live="polite">
+                  {currentChat.turns.slice(0, chatStep).map((turn, index) => (
+                    <div className="chatPair" key={`${turn.bot}-${index}`}>
+                      <p className="botBubble">{turn.bot}</p>
+                      <p className="userBubble">{turn.target.join(" ")}</p>
+                    </div>
+                  ))}
+                  <p className="botBubble current">
+                    <span>컴퓨터</span>
+                    {currentChatTurn.bot}
+                    <small>{currentChatTurn.botKr}</small>
+                  </p>
+                  <p className="userBubble draft">
+                    {chatTokens.length > 0 ? chatTokens.join(" ") : "단어 카드를 눌러 답장을 만드세요"}
+                  </p>
+                </div>
+                <div className="wordBank">
+                  {chatChoices.map((token, index) => {
+                    const used = chatTokens.includes(token);
+                    return (
+                      <button key={`${token}-${index}`} type="button" disabled={used} onClick={() => setChatTokens((items) => [...items, token])}>
+                        {token}
+                      </button>
+                    );
+                  })}
+                </div>
+                {chatFeedback && (
+                  <div className={chatFeedback.correct ? "chatFeedback correctBox" : "chatFeedback retryBox"}>
+                    <strong>{chatFeedback.correct ? "정답" : "다시 확인"}</strong>
+                    <span>{chatFeedback.message}</span>
+                    <small>{currentChatTurn.translation}</small>
+                  </div>
+                )}
+                <div className="chatActions">
+                  <button className="ghostButton" type="button" onClick={resetChatTurn}>지우기</button>
+                  <button className="ghostButton" type="button" onClick={() => setChatTokens((items) => items.slice(0, -1))}>하나 취소</button>
+                  <button className="primaryButton" type="button" onClick={chatFeedback?.correct ? nextChatTurn : checkChatAnswer}>
+                    {chatFeedback?.correct ? "다음 채팅" : "확인"}
+                  </button>
+                </div>
+              </div>
+            )}
           </section>
         </section>
       )}

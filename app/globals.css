@@ -587,6 +587,127 @@ p {
   color: var(--muted);
 }
 
+.chatTrainer {
+  display: grid;
+  gap: 12px;
+}
+
+.chatWindow {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #f8fafc;
+}
+
+.chatPair {
+  display: grid;
+  gap: 7px;
+}
+
+.botBubble,
+.userBubble {
+  width: fit-content;
+  max-width: 88%;
+  margin-bottom: 0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  line-height: 1.5;
+  font-weight: 900;
+}
+
+.botBubble {
+  justify-self: start;
+  background: #ffffff;
+  border: 1px solid var(--line);
+}
+
+.botBubble span,
+.botBubble small {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.botBubble small {
+  margin: 6px 0 0;
+  font-weight: 800;
+}
+
+.botBubble.current {
+  border-color: #bdd7ff;
+  background: #eef5ff;
+}
+
+.userBubble {
+  justify-self: end;
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.userBubble.draft {
+  min-width: min(100%, 220px);
+  background: #e9f8f5;
+  color: var(--teal);
+  text-align: right;
+}
+
+.wordBank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wordBank button {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 12px;
+  background: #ffffff;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.wordBank button:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+
+.chatFeedback {
+  display: grid;
+  gap: 5px;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.chatFeedback span,
+.chatFeedback small {
+  line-height: 1.45;
+  font-weight: 800;
+}
+
+.chatFeedback small {
+  color: var(--muted);
+}
+
+.correctBox {
+  background: #e9f8f5;
+  color: var(--teal);
+}
+
+.retryBox {
+  background: #fff0ee;
+  color: var(--coral);
+}
+
+.chatActions {
+  display: grid;
+  grid-template-columns: 0.8fr 0.8fr 1fr;
+  gap: 8px;
+}
+
 .segmented {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
