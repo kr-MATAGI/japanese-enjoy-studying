@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import {
   chatScenarios,
+  expressionPatterns,
   groupGames,
   kanaReference,
   levelRoadmap,
@@ -199,6 +200,7 @@ export default function HomePage() {
   const [vocabMode, setVocabMode] = useState("kana");
   const [kanaSetId, setKanaSetId] = useState(kanaReference[0].id);
   const [wordCategory, setWordCategory] = useState("all");
+  const [expressionCategory, setExpressionCategory] = useState("all");
 
   const selectedNode = skillNodes.find((item) => item.id === selectedNodeId) || skillNodes[0];
   const selectedIndex = skillNodes.findIndex((item) => item.id === selectedNode.id);
@@ -216,6 +218,12 @@ export default function HomePage() {
     () => (wordCategory === "all" ? wordDeck : wordDeck.filter((word) => word.category === wordCategory)),
     [wordCategory]
   );
+  const expressionCategories = useMemo(() => ["all", ...Array.from(new Set(expressionPatterns.map((item) => item.category)))], []);
+  const visibleExpressions = useMemo(
+    () => (expressionCategory === "all" ? expressionPatterns : expressionPatterns.filter((item) => item.category === expressionCategory)),
+    [expressionCategory]
+  );
+  const vocabCount = vocabMode === "kana" ? currentKanaSet.items.length : vocabMode === "words" ? visibleVocabWords.length : visibleExpressions.length;
   const wordChoices = useMemo(() => {
     const distractors = sampleItems(availableWords.filter((word) => word.kr !== currentWord.kr), 3).map((word) => word.kr);
     return shuffleItems([currentWord.kr, ...distractors]);
@@ -732,11 +740,12 @@ export default function HomePage() {
                 <p className="eyebrow">Reference</p>
                 <h2>단어장</h2>
               </div>
-              <span className="countBadge">{vocabMode === "kana" ? currentKanaSet.items.length : visibleVocabWords.length}개</span>
+              <span className="countBadge">{vocabCount}개</span>
             </div>
             <div className="segmented">
               <button className={vocabMode === "kana" ? "on" : ""} type="button" onClick={() => setVocabMode("kana")}>필수 문자</button>
               <button className={vocabMode === "words" ? "on" : ""} type="button" onClick={() => setVocabMode("words")}>생활 단어</button>
+              <button className={vocabMode === "expressions" ? "on" : ""} type="button" onClick={() => setVocabMode("expressions")}>생활 표현</button>
             </div>
 
             {vocabMode === "kana" && (
@@ -789,6 +798,40 @@ export default function HomePage() {
                       </div>
                       <p>{word.kr}</p>
                       <small>Level {word.minLevel} · {word.category}</small>
+                    </article>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {vocabMode === "expressions" && (
+              <>
+                <div className="vocabSelector">
+                  {expressionCategories.map((category) => (
+                    <button key={category} className={expressionCategory === category ? "selected" : ""} type="button" onClick={() => setExpressionCategory(category)}>
+                      {category === "all" ? "전체" : category}
+                    </button>
+                  ))}
+                </div>
+                <div className="expressionList">
+                  {visibleExpressions.map((expression) => (
+                    <article key={expression.id}>
+                      <div className="expressionHeader">
+                        <span>{expression.category}</span>
+                        <strong>{expression.pattern}</strong>
+                        <small>{expression.reading}</small>
+                      </div>
+                      <p>{expression.meaning}</p>
+                      <div className="slotList" aria-label="끼워 넣을 수 있는 단어 종류">
+                        {expression.slots.map((slot) => (
+                          <span key={slot}>{slot}</span>
+                        ))}
+                      </div>
+                      <div className="exampleList">
+                        {expression.examples.map((example) => (
+                          <small key={example}>{example}</small>
+                        ))}
+                      </div>
                     </article>
                   ))}
                 </div>

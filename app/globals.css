@@ -440,7 +440,8 @@ p {
 .groupGrid article,
 .liarResult,
 .kanaReferenceGrid article,
-.wordList article {
+.wordList article,
+.expressionList article {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #ffffff;
@@ -696,7 +697,11 @@ p {
 }
 
 .vocabCard .segmented {
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.vocabCard .segmented button {
+  font-size: 0.86rem;
 }
 
 .vocabSelector {
@@ -817,6 +822,77 @@ p {
   margin-bottom: 0;
   font-weight: 900;
   text-align: right;
+}
+
+.expressionList {
+  display: grid;
+  gap: 10px;
+}
+
+.expressionList article {
+  display: grid;
+  gap: 10px;
+  padding: 13px;
+}
+
+.expressionHeader {
+  display: grid;
+  gap: 4px;
+}
+
+.expressionHeader span {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: #eefaf8;
+  color: var(--teal);
+  font-size: 0.74rem;
+  font-weight: 900;
+}
+
+.expressionHeader strong {
+  color: var(--ink);
+  font-size: 1.08rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.expressionHeader small,
+.exampleList small {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.expressionList p {
+  margin-bottom: 0;
+  color: var(--ink);
+  font-weight: 900;
+  line-height: 1.45;
+}
+
+.slotList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.slotList span {
+  border: 1px solid #d8c8ff;
+  border-radius: 999px;
+  padding: 5px 8px;
+  background: #f5f1ff;
+  color: var(--plum);
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.exampleList {
+  display: grid;
+  gap: 5px;
+  border-top: 1px solid var(--line);
+  padding-top: 9px;
 }
 
 .chatTrainer {
