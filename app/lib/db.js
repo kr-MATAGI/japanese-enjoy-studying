@@ -2,7 +2,11 @@ import Database from "better-sqlite3";
 import { mkdirSync } from "fs";
 import { dirname, join } from "path";
 
-const dbPath = join(process.cwd(), "data", "nihongo.sqlite");
+const dbPath =
+  process.env.SQLITE_PATH ||
+  process.env.DATABASE_PATH ||
+  (process.env.VERCEL ? join("/tmp", "nihongo.sqlite") : join(process.cwd(), "data", "nihongo.sqlite"));
+
 mkdirSync(dirname(dbPath), { recursive: true });
 
 const db = new Database(dbPath, { timeout: 5000 });

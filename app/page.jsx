@@ -464,6 +464,25 @@ export default function HomePage() {
     window.localStorage.setItem("nihongo-show-romaji", String(showRomaji));
   }, [showRomaji]);
 
+  async function readApiResponse(response, fallbackMessage) {
+    const text = await response.text();
+    let data = {};
+
+    if (text) {
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`${fallbackMessage} 서버가 JSON 대신 오류 페이지를 반환했습니다. 잠시 후 다시 시도해주세요.`);
+      }
+    }
+
+    if (!response.ok) {
+      throw new Error(data.error || fallbackMessage);
+    }
+
+    return data;
+  }
+
   async function api(path, options = {}) {
     const headers = {
       "Content-Type": "application/json",
@@ -471,9 +490,7 @@ export default function HomePage() {
       ...(options.headers || {}),
     };
     const response = await fetch(path, { ...options, headers });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "요청에 실패했습니다.");
-    return data;
+    return readApiResponse(response, "요청에 실패했습니다.");
   }
 
   async function loadProgress(profileId, key) {
@@ -481,7 +498,7 @@ export default function HomePage() {
       headers: { "x-profile-id": profileId, "x-access-key": key },
     });
     if (!response.ok) return;
-    const data = await response.json();
+    const data = await readApiResponse(response, "진행률을 불러오지 못했습니다.");
     setProgress(data.progress);
     setSelectedNodeId(data.progress.currentNodeId);
   }
@@ -494,11 +511,7 @@ export default function HomePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: loginName, pin: loginPin }),
-      }).then(async (response) => {
-        const body = await response.json();
-        if (!response.ok) throw new Error(body.error || "로그인에 실패했습니다.");
-        return body;
-      });
+      }).then((response) => readApiResponse(response, "로그인에 실패했습니다."));
 
       setProfile(data.profile);
       setAccessKey(data.accessKey);
