@@ -438,6 +438,7 @@ p {
 .speechBox,
 .wordGame,
 .groupGrid article,
+.groupPlay,
 .liarResult,
 .kanaReferenceGrid article,
 .wordList article,
@@ -1118,6 +1119,167 @@ p {
   margin-bottom: 0;
   color: var(--muted);
   line-height: 1.5;
+}
+
+.groupPlay {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.groupPlay > p {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.5;
+  font-weight: 800;
+}
+
+.groupPlayHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.groupPlayHeader div {
+  display: grid;
+  gap: 4px;
+}
+
+.groupPlayHeader span,
+.bingoStatus span,
+.promptPlay span,
+.roleplayCard span,
+.forbiddenPlay span,
+.reactionPlay span {
+  color: var(--plum);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.groupPlayHeader strong,
+.bingoStatus strong,
+.promptPlay strong,
+.roleplayCard strong,
+.forbiddenPlay strong,
+.reactionPlay strong {
+  color: var(--ink);
+  line-height: 1.35;
+}
+
+.bingoPlay,
+.promptPlay,
+.roleplayCard,
+.forbiddenPlay,
+.reactionPlay {
+  display: grid;
+  gap: 10px;
+}
+
+.bingoStatus {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.bingoBoard {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.bingoBoard button {
+  display: grid;
+  min-width: 0;
+  min-height: 88px;
+  align-content: center;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 5px;
+  background: #ffffff;
+  color: var(--ink);
+  text-align: center;
+}
+
+.bingoBoard button.checked,
+.reactionChoices button.selected {
+  border-color: var(--teal);
+  background: #e9f8f5;
+  color: var(--teal);
+}
+
+.bingoBoard span {
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.bingoBoard strong {
+  font-size: 0.78rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.promptPlay,
+.roleplayCard,
+.forbiddenPlay,
+.reactionPlay {
+  border-radius: 8px;
+  padding: 12px;
+  background: #f8fafc;
+}
+
+.promptPlay p,
+.forbiddenPlay p,
+.reactionPlay p {
+  margin-bottom: 0;
+  line-height: 1.45;
+}
+
+.promptPlay small,
+.forbiddenPlay small,
+.reactionPlay small,
+.miniExpressionList small {
+  color: var(--muted);
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.roleGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.roleGrid div {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: #ffffff;
+  text-align: center;
+  font-weight: 900;
+}
+
+.miniExpressionList,
+.reactionChoices {
+  display: grid;
+  gap: 7px;
+}
+
+.reactionChoices button {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.groupActions {
+  display: grid;
+  grid-template-columns: 0.8fr 1fr;
+  gap: 8px;
 }
 
 .fieldGrid {

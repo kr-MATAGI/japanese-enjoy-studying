@@ -45,6 +45,42 @@ const tabs = [
   { id: "games", label: "게임", icon: Gamepad2 },
 ];
 
+const relayQuestions = [
+  { jp: "すきな たべものは なんですか。", kr: "좋아하는 음식은 무엇인가요?", helper: "すきな たべものは ___ です." },
+  { jp: "しゅうまつに なにを しますか。", kr: "주말에 무엇을 하나요?", helper: "しゅうまつに ___ を します." },
+  { jp: "どこに いきたいですか。", kr: "어디에 가고 싶나요?", helper: "___ に いきたいです." },
+  { jp: "まいにち なにを のみますか。", kr: "매일 무엇을 마시나요?", helper: "まいにち ___ を のみます." },
+  { jp: "にほんごは どうですか。", kr: "일본어는 어떤가요?", helper: "にほんごは ___ です." },
+  { jp: "だれと あいますか。", kr: "누구와 만나나요?", helper: "___ と あいます." },
+  { jp: "いま なにを していますか。", kr: "지금 무엇을 하고 있나요?", helper: "いま ___ ています." },
+  { jp: "おすすめは なんですか。", kr: "추천은 무엇인가요?", helper: "___ が おすすめです." },
+];
+
+const roleplayCards = [
+  { place: "카페", roles: ["점원", "손님"], mission: "음료를 주문하고 가격을 묻습니다.", expressions: ["___ を ください。", "___ は いくらですか。", "ありがとうございます。"] },
+  { place: "역", roles: ["역무원", "여행자"], mission: "목적지를 말하고 표를 요청합니다.", expressions: ["___ に いきます。", "きっぷ を ください。", "___ は どこですか。"] },
+  { place: "교실", roles: ["선생님", "학생"], mission: "모르는 표현을 묻고 다시 말해 달라고 합니다.", expressions: ["___ が わかりません。", "もういちど いってください。", "おしえてください。"] },
+  { place: "편의점", roles: ["직원", "손님"], mission: "사고 싶은 물건을 말하고 추천을 받습니다.", expressions: ["___ が ほしいです。", "___ を ください。", "おすすめは なんですか。"] },
+  { place: "첫 만남", roles: ["A", "B"], mission: "이름, 출신, 좋아하는 것을 말합니다.", expressions: ["はじめまして。", "わたしは ___ です。", "___ が すきです。"] },
+];
+
+const forbiddenCards = [
+  { word: "カフェ", meaning: "카페", forbidden: ["커피", "마시다", "가게"], starter: "ここで ___ を のみます." },
+  { word: "えき", meaning: "역", forbidden: ["기차", "지하철", "가다"], starter: "ここから ___ に いきます." },
+  { word: "スマホ", meaning: "스마트폰", forbidden: ["전화", "앱", "사진"], starter: "まいにち つかいます." },
+  { word: "ともだち", meaning: "친구", forbidden: ["사람", "만나다", "같이"], starter: "しゅうまつに ___ と あいます." },
+  { word: "ラーメン", meaning: "라멘", forbidden: ["면", "국물", "먹다"], starter: "これは とても おいしいです." },
+  { word: "としょかん", meaning: "도서관", forbidden: ["책", "읽다", "조용"], starter: "ここで べんきょうします." },
+];
+
+const reactionCards = [
+  { line: "きょうは とても たのしいです。", meaning: "오늘은 정말 즐거워요.", reactions: ["いいですね。", "わたしもです。", "ほんとうですか。"] },
+  { line: "この ケーキは おいしいです。", meaning: "이 케이크는 맛있어요.", reactions: ["そうですね。", "わたしも たべたいです。", "おすすめですか。"] },
+  { line: "にほんごは むずかしいです。", meaning: "일본어는 어려워요.", reactions: ["でも、たのしいです。", "だいじょうぶです。", "いっしょに べんきょうしましょう。"] },
+  { line: "あした カフェに いきます。", meaning: "내일 카페에 가요.", reactions: ["いいですね。", "だれと いきますか。", "おすすめは なんですか。"] },
+  { line: "すみません、いみが わかりません。", meaning: "죄송해요, 의미를 모르겠어요.", reactions: ["もういちど いいます。", "だいじょうぶです。", "ゆっくり はなします。"] },
+];
+
 const kanaChartLayouts = {
   "hiragana-basic": {
     columns: 5,
@@ -191,6 +227,11 @@ export default function HomePage() {
   const [chatChoiceSeed, setChatChoiceSeed] = useState(1);
   const [gameSection, setGameSection] = useState("solo");
   const [soloGameIndex, setSoloGameIndex] = useState(0);
+  const [groupGameIndex, setGroupGameIndex] = useState(0);
+  const [groupRound, setGroupRound] = useState(0);
+  const [groupPlayer, setGroupPlayer] = useState(1);
+  const [bingoChecked, setBingoChecked] = useState([]);
+  const [reactionChoice, setReactionChoice] = useState("");
   const [wordIndex, setWordIndex] = useState(0);
   const [wordAnswer, setWordAnswer] = useState("");
   const [liarSeed, setLiarSeed] = useState("NIHONGO");
@@ -211,6 +252,15 @@ export default function HomePage() {
   const availableWords = wordDeck.filter((word) => word.minLevel <= unlockedLevel);
   const currentWord = availableWords[wordIndex % availableWords.length] || wordDeck[0];
   const currentSoloGame = soloGames[soloGameIndex] || soloGames[0];
+  const playableGroupGames = groupGames.filter((game) => game.id !== "liar");
+  const currentGroupGame = playableGroupGames[groupGameIndex] || playableGroupGames[0];
+  const bingoItems = useMemo(() => sampleItems(expressionPatterns, 9), [groupRound]);
+  const bingoLines = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+  const bingoCount = bingoLines.filter((line) => line.every((index) => bingoChecked.includes(index))).length;
+  const relayQuestion = relayQuestions[groupRound % relayQuestions.length];
+  const roleplayCard = roleplayCards[groupRound % roleplayCards.length];
+  const forbiddenCard = forbiddenCards[groupRound % forbiddenCards.length];
+  const reactionCard = reactionCards[groupRound % reactionCards.length];
   const currentKanaSet = kanaReference.find((set) => set.id === kanaSetId) || kanaReference[0];
   const currentKanaDisplay = useMemo(() => buildKanaDisplay(currentKanaSet), [currentKanaSet]);
   const wordCategories = useMemo(() => ["all", ...Array.from(new Set(wordDeck.map((word) => word.category)))], []);
@@ -365,6 +415,25 @@ export default function HomePage() {
 
   function startGeneratedSeed() {
     setLiarSeed(Math.random().toString(36).slice(2, 8).toUpperCase());
+  }
+
+  function selectGroupGame(index) {
+    setGroupGameIndex(index);
+    setGroupRound(0);
+    setGroupPlayer(1);
+    setBingoChecked([]);
+    setReactionChoice("");
+  }
+
+  function nextGroupRound() {
+    setGroupRound((value) => value + 1);
+    setGroupPlayer((value) => (value >= 6 ? 1 : value + 1));
+    setBingoChecked([]);
+    setReactionChoice("");
+  }
+
+  function toggleBingoCell(index) {
+    setBingoChecked((items) => (items.includes(index) ? items.filter((item) => item !== index) : [...items, index]));
   }
 
   function resetChatTurn() {
@@ -880,15 +949,107 @@ export default function HomePage() {
             )}
 
             {gameSection === "group" && (
-              <div className="groupGrid">
-                {groupGames.filter((game) => game.id !== "liar").map((game) => (
-                  <article key={game.id}>
-                    <Users size={18} />
-                    <strong>{game.title}</strong>
-                    <p>{game.prompt}</p>
-                    <GameGuide steps={game.howTo} />
-                  </article>
-                ))}
+              <div className="gameStack">
+                <div className="gamePicker">
+                  {playableGroupGames.map((game, index) => (
+                    <button key={game.id} className={groupGameIndex === index ? "picked" : ""} type="button" onClick={() => selectGroupGame(index)}>
+                      {game.title}
+                    </button>
+                  ))}
+                </div>
+                <article className="groupPlay">
+                  <div className="groupPlayHeader">
+                    <div>
+                      <span>Round {groupRound + 1} · Player {groupPlayer}</span>
+                      <strong>{currentGroupGame.title}</strong>
+                    </div>
+                    <Users size={20} />
+                  </div>
+                  <p>{currentGroupGame.prompt}</p>
+                  <GameGuide steps={currentGroupGame.howTo} />
+
+                  {currentGroupGame.id === "bingo" && (
+                    <div className="bingoPlay">
+                      <div className="bingoStatus">
+                        <span>{bingoChecked.length}/9 체크</span>
+                        <strong>{bingoCount > 0 ? `${bingoCount}줄 완성` : "표현을 말하면 체크"}</strong>
+                      </div>
+                      <div className="bingoBoard">
+                        {bingoItems.map((item, index) => (
+                          <button key={`${item.id}-${index}`} className={bingoChecked.includes(index) ? "checked" : ""} type="button" onClick={() => toggleBingoCell(index)}>
+                            <span>{item.category}</span>
+                            <strong>{item.pattern}</strong>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {currentGroupGame.id === "relay" && (
+                    <div className="promptPlay">
+                      <span>질문 카드</span>
+                      <strong>{relayQuestion.jp}</strong>
+                      <p>{relayQuestion.kr}</p>
+                      <small>답변 틀: {relayQuestion.helper}</small>
+                    </div>
+                  )}
+
+                  {currentGroupGame.id === "roleplay" && (
+                    <div className="roleplayCard">
+                      <span>{roleplayCard.place}</span>
+                      <strong>{roleplayCard.mission}</strong>
+                      <div className="roleGrid">
+                        {roleplayCard.roles.map((role) => (
+                          <div key={role}>{role}</div>
+                        ))}
+                      </div>
+                      <div className="miniExpressionList">
+                        {roleplayCard.expressions.map((expression) => (
+                          <small key={expression}>{expression}</small>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {currentGroupGame.id === "forbidden" && (
+                    <div className="forbiddenPlay">
+                      <span>제시어</span>
+                      <strong>{forbiddenCard.word}</strong>
+                      <small>{forbiddenCard.meaning}</small>
+                      <p>시작 문장: {forbiddenCard.starter}</p>
+                      <div className="slotList" aria-label="금지어">
+                        {forbiddenCard.forbidden.map((word) => (
+                          <span key={word}>{word}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {currentGroupGame.id === "reaction" && (
+                    <div className="reactionPlay">
+                      <span>상대의 말</span>
+                      <strong>{reactionCard.line}</strong>
+                      <small>{reactionCard.meaning}</small>
+                      <div className="reactionChoices">
+                        {reactionCard.reactions.map((reaction) => (
+                          <button key={reaction} className={reactionChoice === reaction ? "selected" : ""} type="button" onClick={() => setReactionChoice(reaction)}>
+                            {reaction}
+                          </button>
+                        ))}
+                      </div>
+                      {reactionChoice && <p className="correct">좋아요. 이제 이유를 한 단어라도 덧붙여 말해보세요.</p>}
+                    </div>
+                  )}
+
+                  <div className="groupActions">
+                    <button className="ghostButton" type="button" onClick={() => { setGroupRound(0); setGroupPlayer(1); setBingoChecked([]); setReactionChoice(""); }}>
+                      처음으로
+                    </button>
+                    <button className="primaryButton" type="button" onClick={nextGroupRound}>
+                      다음 라운드
+                    </button>
+                  </div>
+                </article>
               </div>
             )}
 
