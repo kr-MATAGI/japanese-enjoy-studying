@@ -81,6 +81,36 @@ const reactionCards = [
   { line: "すみません、いみが わかりません。", meaning: "죄송해요, 의미를 모르겠어요.", reactions: ["もういちど いいます。", "だいじょうぶです。", "ゆっくり はなします。"] },
 ];
 
+const kanaRomaji = {
+  あ: "a", い: "i", う: "u", え: "e", お: "o", か: "ka", き: "ki", く: "ku", け: "ke", こ: "ko",
+  さ: "sa", し: "shi", す: "su", せ: "se", そ: "so", た: "ta", ち: "chi", つ: "tsu", て: "te", と: "to",
+  な: "na", に: "ni", ぬ: "nu", ね: "ne", の: "no", は: "ha", ひ: "hi", ふ: "fu", へ: "he", ほ: "ho",
+  ま: "ma", み: "mi", む: "mu", め: "me", も: "mo", や: "ya", ゆ: "yu", よ: "yo",
+  ら: "ra", り: "ri", る: "ru", れ: "re", ろ: "ro", わ: "wa", を: "o", ん: "n",
+  が: "ga", ぎ: "gi", ぐ: "gu", げ: "ge", ご: "go", ざ: "za", じ: "ji", ず: "zu", ぜ: "ze", ぞ: "zo",
+  だ: "da", ぢ: "ji", づ: "zu", で: "de", ど: "do", ば: "ba", び: "bi", ぶ: "bu", べ: "be", ぼ: "bo",
+  ぱ: "pa", ぴ: "pi", ぷ: "pu", ぺ: "pe", ぽ: "po",
+  ア: "a", イ: "i", ウ: "u", エ: "e", オ: "o", カ: "ka", キ: "ki", ク: "ku", ケ: "ke", コ: "ko",
+  サ: "sa", シ: "shi", ス: "su", セ: "se", ソ: "so", タ: "ta", チ: "chi", ツ: "tsu", テ: "te", ト: "to",
+  ナ: "na", ニ: "ni", ヌ: "nu", ネ: "ne", ノ: "no", ハ: "ha", ヒ: "hi", フ: "fu", ヘ: "he", ホ: "ho",
+  マ: "ma", ミ: "mi", ム: "mu", メ: "me", モ: "mo", ヤ: "ya", ユ: "yu", ヨ: "yo",
+  ラ: "ra", リ: "ri", ル: "ru", レ: "re", ロ: "ro", ワ: "wa", ヲ: "o", ン: "n",
+  ガ: "ga", ギ: "gi", グ: "gu", ゲ: "ge", ゴ: "go", ザ: "za", ジ: "ji", ズ: "zu", ゼ: "ze", ゾ: "zo",
+  ダ: "da", ヂ: "ji", ヅ: "zu", デ: "de", ド: "do", バ: "ba", ビ: "bi", ブ: "bu", ベ: "be", ボ: "bo",
+  パ: "pa", ピ: "pi", プ: "pu", ペ: "pe", ポ: "po",
+};
+
+const yoonRomaji = {
+  きゃ: "kya", きゅ: "kyu", きょ: "kyo", しゃ: "sha", しゅ: "shu", しょ: "sho", ちゃ: "cha", ちゅ: "chu", ちょ: "cho",
+  にゃ: "nya", にゅ: "nyu", にょ: "nyo", ひゃ: "hya", ひゅ: "hyu", ひょ: "hyo", みゃ: "mya", みゅ: "myu", みょ: "myo",
+  りゃ: "rya", りゅ: "ryu", りょ: "ryo", ぎゃ: "gya", ぎゅ: "gyu", ぎょ: "gyo", じゃ: "ja", じゅ: "ju", じょ: "jo",
+  びゃ: "bya", びゅ: "byu", びょ: "byo", ぴゃ: "pya", ぴゅ: "pyu", ぴょ: "pyo",
+  キャ: "kya", キュ: "kyu", キョ: "kyo", シャ: "sha", シュ: "shu", ショ: "sho", チャ: "cha", チュ: "chu", チョ: "cho",
+  ニャ: "nya", ニュ: "nyu", ニョ: "nyo", ヒャ: "hya", ヒュ: "hyu", ヒョ: "hyo", ミャ: "mya", ミュ: "myu", ミョ: "myo",
+  リャ: "rya", リュ: "ryu", リョ: "ryo", ギャ: "gya", ギュ: "gyu", ギョ: "gyo", ジャ: "ja", ジュ: "ju", ジョ: "jo",
+  ビャ: "bya", ビュ: "byu", ビョ: "byo", ピャ: "pya", ピュ: "pyu", ピョ: "pyo",
+};
+
 const kanaChartLayouts = {
   "hiragana-basic": {
     columns: 5,
@@ -173,6 +203,105 @@ function buildQuizSession(node) {
     ...item,
     choices: shuffleItems(item.choices),
   }));
+}
+
+function romanizeJapanese(text) {
+  let output = "";
+  let doubleNext = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const pair = text.slice(index, index + 2);
+    const char = text[index];
+
+    if (char === "っ" || char === "ッ") {
+      doubleNext = true;
+      continue;
+    }
+
+    let reading = yoonRomaji[pair];
+    if (reading) {
+      index += 1;
+    } else {
+      const nextChar = text[index + 1] || "";
+      if (char === "は" && /\s|。|、|？|！/.test(nextChar)) {
+        reading = "wa";
+      } else if (char === "へ" && /\s|。|、|？|！/.test(nextChar)) {
+        reading = "e";
+      } else {
+        reading = kanaRomaji[char];
+      }
+    }
+
+    if (reading) {
+      if (doubleNext && /^[bcdfghjklmnpqrstvwxyz]/.test(reading)) {
+        output += reading[0];
+      }
+      output += reading;
+      doubleNext = false;
+      continue;
+    }
+
+    if (char === "ー") {
+      output += "-";
+    } else if (char === "。") {
+      output += ".";
+    } else if (char === "、") {
+      output += ",";
+    } else if (char === "？") {
+      output += "?";
+    } else if (char === "！") {
+      output += "!";
+    } else if (/[A-Za-z0-9\s.,!?/＋+\-___]/.test(char)) {
+      output += char;
+    }
+  }
+
+  return output.replace(/\s+/g, " ").trim();
+}
+
+function parseJapaneseLine(text) {
+  const trimmed = text.trim();
+  const hangulIndex = trimmed.search(/[가-힣]/);
+  const hasKana = /[ぁ-んァ-ヶー]/.test(trimmed);
+
+  if (!hasKana) {
+    return { main: trimmed, romaji: "", meaning: "" };
+  }
+
+  if (hangulIndex > 0) {
+    const main = trimmed.slice(0, hangulIndex).trim();
+    return {
+      main,
+      romaji: romanizeJapanese(main),
+      meaning: trimmed.slice(hangulIndex).trim(),
+    };
+  }
+
+  if (hangulIndex === -1) {
+    return {
+      main: trimmed,
+      romaji: romanizeJapanese(trimmed),
+      meaning: "",
+    };
+  }
+
+  return { main: trimmed, romaji: "", meaning: "" };
+}
+
+function JapaneseText({ text, className = "jpLine" }) {
+  const parsed = parseJapaneseLine(text);
+
+  if (!parsed.romaji) {
+    return <span className={className}>{parsed.main}</span>;
+  }
+
+  return (
+    <span className={className}>
+      <span>{parsed.main}</span>
+      <span className="romajiText">{parsed.romaji}</span>
+      {parsed.meaning && <small>{parsed.meaning}</small>}
+    </span>
+  );
 }
 
 function GameGuide({ steps }) {
@@ -630,6 +759,7 @@ export default function HomePage() {
                         <span>
                           <strong>{node.title}</strong>
                           <small>{isOpen ? `${node.quizPool.length}개 문항 풀` : "이전 테스트 통과 필요"}</small>
+                          {isOpen && <JapaneseText className="nodePreview" text={node.examplePool[0]} />}
                         </span>
                       </button>
                     );
@@ -657,19 +787,19 @@ export default function HomePage() {
                   {studySession.studies.map((study, index) => (
                     <article key={study}>
                       <span>{index + 1}</span>
-                      <p>{study}</p>
+                      <p><JapaneseText text={study} /></p>
                     </article>
                   ))}
                 </div>
                 <div className="exampleList">
                   <h3>오늘의 예문</h3>
                   {studySession.examples.map((example) => (
-                    <p key={example}>{example}</p>
+                    <p key={example}><JapaneseText text={example} /></p>
                   ))}
                 </div>
                 <div className="chipRow">
                   {studySession.vocab.map((word) => (
-                    <span key={word}>{word}</span>
+                    <span key={word}><JapaneseText text={word} /></span>
                   ))}
                 </div>
                 {selectedNode.grammarLecture && (
@@ -686,9 +816,9 @@ export default function HomePage() {
                       {selectedNode.grammarLecture.patterns.map((pattern) => (
                         <article key={pattern.name}>
                           <span>{pattern.name}</span>
-                          <strong>{pattern.formula}</strong>
+                          <strong><JapaneseText text={pattern.formula} /></strong>
                           {pattern.examples.map((example) => (
-                            <p key={example}>{example}</p>
+                            <p key={example}><JapaneseText text={example} /></p>
                           ))}
                         </article>
                       ))}
@@ -745,11 +875,11 @@ export default function HomePage() {
                 <div className="quizList">
                   {quizSession.map((item, index) => (
                     <article key={`${item.q}-${index}`}>
-                      <p>{index + 1}. {item.q}</p>
+                      <p><span>{index + 1}. </span><JapaneseText text={item.q} /></p>
                       <div className="choiceList">
                         {item.choices.map((choice) => (
                           <button key={choice} type="button" className={answers[index] === choice ? "choice selected" : "choice"} onClick={() => setAnswers((current) => ({ ...current, [index]: choice }))}>
-                            {choice}
+                            <JapaneseText text={choice} />
                           </button>
                         ))}
                       </div>
