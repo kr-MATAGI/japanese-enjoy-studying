@@ -924,6 +924,31 @@ p {
   color: var(--teal);
 }
 
+.scopeSwitch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px;
+  background: #fbfcfe;
+}
+
+.scopeSwitch button {
+  min-height: 38px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.scopeSwitch button.on {
+  background: var(--ink);
+  color: #ffffff;
+}
+
 .vocabIntro {
   margin-bottom: 12px;
   border-left: 4px solid var(--plum);

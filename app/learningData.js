@@ -52,11 +52,54 @@ const quizFillers = [
   { q: "きのう의 뜻은?", answer: "어제", choices: ["어제", "내일", "지금", "아침"] },
 ];
 
-function fillQuiz(items, id) {
+const kanaQuizFillers = [
+  { q: "あ의 발음은?", answer: "a", choices: ["a", "i", "u", "e"] },
+  { q: "い의 발음은?", answer: "i", choices: ["i", "a", "e", "o"] },
+  { q: "う의 발음은?", answer: "u", choices: ["u", "e", "a", "i"] },
+  { q: "え의 발음은?", answer: "e", choices: ["e", "a", "o", "u"] },
+  { q: "お의 발음은?", answer: "o", choices: ["o", "a", "i", "e"] },
+  { q: "か의 발음은?", answer: "ka", choices: ["ka", "sa", "ta", "na"] },
+  { q: "き의 발음은?", answer: "ki", choices: ["ki", "shi", "chi", "ni"] },
+  { q: "く의 발음은?", answer: "ku", choices: ["ku", "su", "tsu", "nu"] },
+  { q: "け의 발음은?", answer: "ke", choices: ["ke", "se", "te", "ne"] },
+  { q: "こ의 발음은?", answer: "ko", choices: ["ko", "so", "to", "no"] },
+  { q: "ア의 발음은?", answer: "a", choices: ["a", "i", "u", "e"] },
+  { q: "カ의 발음은?", answer: "ka", choices: ["ka", "ga", "sa", "ta"] },
+  { q: "が의 발음은?", answer: "ga", choices: ["ga", "ka", "pa", "za"] },
+  { q: "ぱ의 발음은?", answer: "pa", choices: ["pa", "ba", "ha", "ta"] },
+  { q: "작은 っ은 무엇인가요?", answer: "촉음", choices: ["촉음", "장음", "요음", "탁음"] },
+  { q: "コーヒー의 ー는 무엇인가요?", answer: "장음", choices: ["장음", "촉음", "탁음", "반탁음"] },
+  { q: "きゃ처럼 작은 や가 붙은 소리는?", answer: "요음", choices: ["요음", "촉음", "장음", "탁음"] },
+  { q: "외래어에 자주 쓰는 문자는?", answer: "카타카나", choices: ["카타카나", "히라가나", "한글", "숫자"] },
+];
+
+const level0QuizFillers = [
+  { q: "です는 어떤 말투인가요?", answer: "정중한 말투", choices: ["정중한 말투", "명령", "과거", "금지"] },
+  { q: "질문을 만들 때 문장 끝에 붙이는 말은?", answer: "か", choices: ["か", "を", "で", "に"] },
+  { q: "사물에 쓰는 존재 동사는?", answer: "あります", choices: ["あります", "います", "します", "きます"] },
+  { q: "사람/동물에 쓰는 존재 동사는?", answer: "います", choices: ["います", "あります", "です", "のみます"] },
+  { q: "ありません의 뜻은?", answer: "없습니다", choices: ["없습니다", "있습니다", "갑니다", "봅니다"] },
+  { q: "いません의 뜻은?", answer: "없습니다", choices: ["없습니다", "있습니다", "마십니다", "합니다"] },
+  { q: "い형용사는 명사 앞에 어떻게 붙나요?", answer: "바로 붙음", choices: ["바로 붙음", "な를 붙임", "を를 붙임", "か를 붙임"] },
+  { q: "な형용사가 명사 앞에 올 때 필요한 것은?", answer: "な", choices: ["な", "い", "を", "で"] },
+  { q: "おいしい의 뜻은?", answer: "맛있다", choices: ["맛있다", "조용하다", "편리하다", "좋아하다"] },
+  { q: "しずか의 뜻은?", answer: "조용하다", choices: ["조용하다", "맛있다", "어렵다", "비싸다"] },
+  { q: "たべます의 뜻은?", answer: "먹습니다", choices: ["먹습니다", "마십니다", "갑니다", "봅니다"] },
+  { q: "のみます의 뜻은?", answer: "마십니다", choices: ["마십니다", "먹습니다", "옵니다", "합니다"] },
+  { q: "します의 뜻은?", answer: "합니다", choices: ["합니다", "옵니다", "갑니다", "먹습니다"] },
+  { q: "きます의 뜻은?", answer: "옵니다", choices: ["옵니다", "합니다", "마십니다", "봅니다"] },
+  { q: "を는 주로 무엇을 표시하나요?", answer: "동작 대상", choices: ["동작 대상", "장소", "소유", "질문"] },
+  { q: "に는 존재문에서 무엇을 표시하나요?", answer: "장소", choices: ["장소", "대상", "소유", "부정"] },
+  { q: "が는 존재문에서 무엇을 표시하나요?", answer: "있는 대상", choices: ["있는 대상", "가격", "방향", "과거"] },
+  { q: "すきです의 뜻은?", answer: "좋아합니다", choices: ["좋아합니다", "갑니다", "마십니다", "있습니다"] },
+];
+
+function fillQuiz(items, id, level, type) {
   const merged = [...items];
+  const fillerPool = type === "kana" ? kanaQuizFillers : level === 0 ? level0QuizFillers : quizFillers;
   let index = 0;
   while (merged.length < 18) {
-    const base = quizFillers[(index + id.length) % quizFillers.length];
+    const base = fillerPool[(index + id.length) % fillerPool.length];
     merged.push({ ...base, q: `${base.q} (${merged.length + 1})` });
     index += 1;
   }
@@ -75,7 +118,7 @@ function node(id, level, title, type, unlockAfter, data) {
     examplePool: data.examplePool,
     vocabPool: data.vocabPool || [],
     notePool: data.notePool || [],
-    quizPool: fillQuiz(data.quizPool, id),
+    quizPool: fillQuiz(data.quizPool, id, level, type),
   };
 }
 
@@ -1760,13 +1803,40 @@ const baseWords = [
   ["いってらっしゃい", "itterasshai", "다녀오세요", "phrase", 2], ["ただいま", "tadaima", "다녀왔습니다", "phrase", 2], ["おかえりなさい", "okaeri nasai", "어서 오세요/돌아왔군요", "phrase", 2], ["おつかれさまです", "otsukaresama desu", "수고하셨습니다", "phrase", 3], ["よろしくおねがいします", "yoroshiku onegaishimasu", "잘 부탁합니다", "phrase", 1],
 ];
 
+const defaultWordLevelByCategory = {
+  animal: 0,
+  food: 1,
+  number: 1,
+  people: 1,
+  phrase: 0,
+  place: 1,
+  time: 1,
+  item: 2,
+  direction: 2,
+  shopping: 2,
+  clothes: 2,
+  transport: 2,
+  body: 2,
+  weather: 2,
+  adjective: 3,
+  health: 3,
+  study: 3,
+  verb: 3,
+  travel: 3,
+  work: 4,
+  emotion: 4,
+  hobby: 4,
+  payment: 3,
+  color: 1,
+};
+
 export const wordDeck = baseWords.map(([jp, reading, kr, category, minLevel], index) => ({
   id: `word-${index + 1}`,
   jp,
   reading,
   kr,
   category,
-  minLevel: minLevel ?? (index < 30 ? 0 : Math.min(10, Math.floor(index / 5))),
+  minLevel: minLevel ?? (index < 30 ? 0 : defaultWordLevelByCategory[category] ?? 5),
   hints: [`${category} 범주의 단어입니다.`, `일본어로 ${jp}라고 합니다.`, `한국어 뜻은 ${kr}입니다.`],
 }));
 

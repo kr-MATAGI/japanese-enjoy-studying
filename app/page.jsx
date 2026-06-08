@@ -384,6 +384,7 @@ export default function HomePage() {
   const [kanaQuizIndex, setKanaQuizIndex] = useState(0);
   const [kanaQuizSeed, setKanaQuizSeed] = useState(1);
   const [kanaQuizAnswer, setKanaQuizAnswer] = useState("");
+  const [vocabScope, setVocabScope] = useState("level");
   const [wordCategory, setWordCategory] = useState("all");
   const [expressionCategory, setExpressionCategory] = useState("all");
 
@@ -410,15 +411,56 @@ export default function HomePage() {
   const kanaQuizItems = useMemo(() => shuffleItems(currentKanaSet.items), [currentKanaSet, kanaQuizSeed]);
   const kanaQuiz = useMemo(() => buildKanaQuiz(currentKanaSet, kanaQuizItems, kanaQuizIndex), [currentKanaSet, kanaQuizItems, kanaQuizIndex]);
   const kanaQuizPassed = kanaQuizAnswer === kanaQuiz.correct[0];
-  const wordCategories = useMemo(() => ["all", ...Array.from(new Set(wordDeck.map((word) => word.category)))], []);
-  const visibleVocabWords = useMemo(
-    () => (wordCategory === "all" ? wordDeck : wordDeck.filter((word) => word.category === wordCategory)),
-    [wordCategory]
+  const expressionLevelByCategory = {
+    "취향": 0,
+    "쇼핑": 1,
+    "이동": 1,
+    "약속": 2,
+    "일상": 1,
+    "존재": 0,
+    "묘사": 3,
+    "이유": 7,
+    "연결": 3,
+    "가능": 8,
+    "도움": 4,
+    "대화": 0,
+    "소개": 0,
+    "추천": 5,
+    "식당": 1,
+    "호텔": 3,
+    "건강": 3,
+    "날씨": 2,
+    "옷": 2,
+    "감정": 3,
+    "직장": 4,
+    "학습": 2,
+    "집": 2,
+  };
+  const scopedVocabWords = useMemo(
+    () => (vocabScope === "level" ? wordDeck.filter((word) => word.minLevel <= unlockedLevel) : wordDeck),
+    [unlockedLevel, vocabScope]
   );
-  const expressionCategories = useMemo(() => ["all", ...Array.from(new Set(expressionPatterns.map((item) => item.category)))], []);
+  const scopedExpressions = useMemo(
+    () => (vocabScope === "level" ? expressionPatterns.filter((item) => (expressionLevelByCategory[item.category] ?? 0) <= unlockedLevel) : expressionPatterns),
+    [unlockedLevel, vocabScope]
+  );
+  const wordCategories = useMemo(() => ["all", ...Array.from(new Set(scopedVocabWords.map((word) => word.category)))], [scopedVocabWords]);
+  const visibleVocabWords = useMemo(
+    () => {
+      const categoryAvailable = wordCategory === "all" || scopedVocabWords.some((word) => word.category === wordCategory);
+      if (wordCategory === "all" || !categoryAvailable) return scopedVocabWords;
+      return scopedVocabWords.filter((word) => word.category === wordCategory);
+    },
+    [scopedVocabWords, wordCategory]
+  );
+  const expressionCategories = useMemo(() => ["all", ...Array.from(new Set(scopedExpressions.map((item) => item.category)))], [scopedExpressions]);
   const visibleExpressions = useMemo(
-    () => (expressionCategory === "all" ? expressionPatterns : expressionPatterns.filter((item) => item.category === expressionCategory)),
-    [expressionCategory]
+    () => {
+      const categoryAvailable = expressionCategory === "all" || scopedExpressions.some((item) => item.category === expressionCategory);
+      if (expressionCategory === "all" || !categoryAvailable) return scopedExpressions;
+      return scopedExpressions.filter((item) => item.category === expressionCategory);
+    },
+    [expressionCategory, scopedExpressions]
   );
   const vocabCount = vocabMode === "kana" ? currentKanaSet.items.length : vocabMode === "words" ? visibleVocabWords.length : visibleExpressions.length;
   const wordChoices = useMemo(() => {
@@ -1038,6 +1080,16 @@ export default function HomePage() {
               <button className={vocabMode === "words" ? "on" : ""} type="button" onClick={() => setVocabMode("words")}>생활 단어</button>
               <button className={vocabMode === "expressions" ? "on" : ""} type="button" onClick={() => setVocabMode("expressions")}>생활 표현</button>
             </div>
+            {vocabMode !== "kana" && (
+              <div className="scopeSwitch">
+                <button className={vocabScope === "level" ? "on" : ""} type="button" onClick={() => setVocabScope("level")}>
+                  현재 Level {unlockedLevel}까지
+                </button>
+                <button className={vocabScope === "all" ? "on" : ""} type="button" onClick={() => setVocabScope("all")}>
+                  전체 자료
+                </button>
+              </div>
+            )}
 
             {vocabMode === "kana" && (
               <>
