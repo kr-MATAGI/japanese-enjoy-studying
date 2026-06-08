@@ -664,6 +664,122 @@ p {
   margin-bottom: 0;
 }
 
+.grammarUsageBlock {
+  display: grid;
+  gap: 10px;
+}
+
+.grammarSectionHeader {
+  display: grid;
+  gap: 4px;
+}
+
+.grammarSectionHeader span,
+.substitutionCard > span {
+  color: var(--plum);
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.grammarSectionHeader h4 {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.35;
+}
+
+.transformationGrid,
+.substitutionGrid {
+  display: grid;
+  gap: 10px;
+}
+
+.transformationCard,
+.substitutionCard {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fffdf7;
+}
+
+.transformationCard > strong,
+.substitutionCard > strong {
+  line-height: 1.45;
+  font-size: 1rem;
+}
+
+.transformationCard > small {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  border-radius: 8px;
+  padding: 7px 9px;
+  background: #f7ead7;
+  color: #6f4b1f;
+  font-size: 0.84rem;
+  font-weight: 900;
+  line-height: 1.45;
+}
+
+.changeSteps {
+  display: grid;
+  gap: 8px;
+}
+
+.changeSteps div {
+  display: grid;
+  gap: 3px;
+  border-left: 4px solid var(--teal);
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: #f1fbf9;
+}
+
+.changeSteps span {
+  color: var(--teal);
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.changeSteps p {
+  margin: 0;
+  line-height: 1.55;
+  font-weight: 850;
+}
+
+.slotChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.slotChips span {
+  min-height: 32px;
+  border: 1px solid #d7e2f7;
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: #f3f7ff;
+  color: #24437f;
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.grammarExampleList {
+  display: grid;
+  gap: 7px;
+}
+
+.grammarExampleList p {
+  margin: 0;
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: #fbfcfe;
+  line-height: 1.55;
+  font-weight: 850;
+}
+
 .lectureColumns {
   display: grid;
   gap: 10px;

@@ -823,6 +823,56 @@ export default function HomePage() {
                     </article>
                   ))}
                 </div>
+                {selectedNode.grammarLecture.transformations?.length > 0 && (
+                  <div className="grammarUsageBlock">
+                    <div className="grammarSectionHeader">
+                      <span>활용 변화</span>
+                      <h4>단어가 문법을 만나 문장으로 바뀌는 과정</h4>
+                    </div>
+                    <div className="transformationGrid">
+                      {selectedNode.grammarLecture.transformations.map((item) => (
+                        <article key={item.title} className="transformationCard">
+                          <strong>{item.title}</strong>
+                          <small><JapaneseText text={item.base} /></small>
+                          <div className="changeSteps">
+                            {item.steps.map((step) => (
+                              <div key={`${item.title}-${step.label}-${step.text}`}>
+                                <span>{step.label}</span>
+                                <p><JapaneseText text={step.text} /></p>
+                              </div>
+                            ))}
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {selectedNode.grammarLecture.substitutionExamples?.length > 0 && (
+                  <div className="grammarUsageBlock">
+                    <div className="grammarSectionHeader">
+                      <span>단어 끼워넣기</span>
+                      <h4>틀은 유지하고 단어만 바꿔 회화로 확장하기</h4>
+                    </div>
+                    <div className="substitutionGrid">
+                      {selectedNode.grammarLecture.substitutionExamples.map((item) => (
+                        <article key={item.title} className="substitutionCard">
+                          <span>{item.title}</span>
+                          <strong><JapaneseText text={item.frame} /></strong>
+                          <div className="slotChips">
+                            {item.slots.map((slot) => (
+                              <span key={`${item.title}-${slot}`}><JapaneseText text={slot} /></span>
+                            ))}
+                          </div>
+                          <div className="grammarExampleList">
+                            {item.examples.map((example) => (
+                              <p key={`${item.title}-${example}`}><JapaneseText text={example} /></p>
+                            ))}
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="lectureColumns">
                   <article>
                     <h4>자주 틀리는 부분</h4>
