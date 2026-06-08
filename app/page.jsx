@@ -11,7 +11,6 @@ import {
   Gamepad2,
   Home,
   Languages,
-  Lock,
   LogOut,
   Map as MapIcon,
   MessageCircle,
@@ -539,11 +538,6 @@ export default function HomePage() {
   }
 
   function selectNode(node) {
-    if (!progress.unlockedNodeIds.includes(node.id)) {
-      setSelectedNodeId(node.id);
-      setActiveTab("roadmap");
-      return;
-    }
     setSelectedNodeId(node.id);
     setAnswers({});
     setTestResult(null);
@@ -740,8 +734,8 @@ export default function HomePage() {
             </div>
             <div className="miniPath">
               {skillNodes.slice(0, 6).map((node) => (
-                <button key={node.id} className={progress.passedNodeIds.includes(node.id) ? "pathDot done" : progress.unlockedNodeIds.includes(node.id) ? "pathDot open" : "pathDot locked"} onClick={() => selectNode(node)} type="button">
-                  {progress.passedNodeIds.includes(node.id) ? <Check size={16} /> : progress.unlockedNodeIds.includes(node.id) ? node.level : <Lock size={15} />}
+                <button key={node.id} className={progress.passedNodeIds.includes(node.id) ? "pathDot done" : "pathDot open"} onClick={() => selectNode(node)} type="button">
+                  {progress.passedNodeIds.includes(node.id) ? <Check size={16} /> : node.level}
                 </button>
               ))}
             </div>
@@ -762,17 +756,17 @@ export default function HomePage() {
                 </div>
                 <div className="nodeList">
                   {nodes.map((node) => {
-                    const isOpen = progress.unlockedNodeIds.includes(node.id);
+                    const isRecommended = progress.unlockedNodeIds.includes(node.id);
                     const isPassed = progress.passedNodeIds.includes(node.id);
                     return (
                       <button key={node.id} className={selectedNode.id === node.id ? "nodeCard selected" : "nodeCard"} type="button" onClick={() => selectNode(node)}>
-                        <span className={isPassed ? "nodeIcon done" : isOpen ? "nodeIcon open" : "nodeIcon locked"}>
-                          {isPassed ? <Check size={16} /> : isOpen ? <BookOpen size={16} /> : <Lock size={16} />}
+                        <span className={isPassed ? "nodeIcon done" : "nodeIcon open"}>
+                          {isPassed ? <Check size={16} /> : <BookOpen size={16} />}
                         </span>
                         <span>
                           <strong>{node.title}</strong>
-                          <small>{isOpen ? `${node.quizPool.length}개 문항 풀` : "이전 테스트 통과 필요"}</small>
-                          {isOpen && <JapaneseText className="nodePreview" text={node.examplePool[0]} />}
+                          <small>{isRecommended ? `${node.quizPool.length}개 문항 풀` : `선행 권장 · ${node.quizPool.length}개 문항`}</small>
+                          <JapaneseText className="nodePreview" text={node.examplePool[0]} />
                         </span>
                       </button>
                     );
@@ -789,81 +783,72 @@ export default function HomePage() {
           <section className="sectionCard">
             <p className="eyebrow">Level {selectedNode.level} · {selectedNode.type}</p>
             <h2>{selectedNode.title}</h2>
-            {!progress.unlockedNodeIds.includes(selectedNode.id) ? (
-              <div className="lockedNotice">
-                <Lock size={22} />
-                <p>이전 노드 테스트를 통과하면 열립니다.</p>
-              </div>
-            ) : (
-              <>
-                <div className="studyList">
-                  {studySession.studies.map((study, index) => (
-                    <article key={study}>
-                      <span>{index + 1}</span>
-                      <p><JapaneseText text={study} /></p>
+            <div className="studyList">
+              {studySession.studies.map((study, index) => (
+                <article key={study}>
+                  <span>{index + 1}</span>
+                  <p><JapaneseText text={study} /></p>
+                </article>
+              ))}
+            </div>
+            <div className="exampleList">
+              <h3>오늘의 예문</h3>
+              {studySession.examples.map((example) => (
+                <p key={example}><JapaneseText text={example} /></p>
+              ))}
+            </div>
+            <div className="chipRow">
+              {studySession.vocab.map((word) => (
+                <span key={word}><JapaneseText text={word} /></span>
+              ))}
+            </div>
+            {selectedNode.grammarLecture && (
+              <section className="grammarLecture">
+                <p className="eyebrow">문법 강의</p>
+                <h3>{selectedNode.title} 핵심 정리</h3>
+                <p className="lectureSummary">{selectedNode.grammarLecture.summary}</p>
+                <div className="conceptList">
+                  {selectedNode.grammarLecture.concepts.map((concept) => (
+                    <span key={concept}>{concept}</span>
+                  ))}
+                </div>
+                <div className="patternLectureGrid">
+                  {selectedNode.grammarLecture.patterns.map((pattern) => (
+                    <article key={pattern.name}>
+                      <span>{pattern.name}</span>
+                      <strong><JapaneseText text={pattern.formula} /></strong>
+                      {pattern.examples.map((example) => (
+                        <p key={example}><JapaneseText text={example} /></p>
+                      ))}
                     </article>
                   ))}
                 </div>
-                <div className="exampleList">
-                  <h3>오늘의 예문</h3>
-                  {studySession.examples.map((example) => (
-                    <p key={example}><JapaneseText text={example} /></p>
-                  ))}
+                <div className="lectureColumns">
+                  <article>
+                    <h4>자주 틀리는 부분</h4>
+                    {selectedNode.grammarLecture.pitfalls.map((pitfall) => (
+                      <p key={pitfall}>{pitfall}</p>
+                    ))}
+                  </article>
+                  <article>
+                    <h4>연습 과제</h4>
+                    {selectedNode.grammarLecture.drills.map((drill) => (
+                      <p key={drill}>{drill}</p>
+                    ))}
+                  </article>
                 </div>
-                <div className="chipRow">
-                  {studySession.vocab.map((word) => (
-                    <span key={word}><JapaneseText text={word} /></span>
-                  ))}
-                </div>
-                {selectedNode.grammarLecture && (
-                  <section className="grammarLecture">
-                    <p className="eyebrow">문법 강의</p>
-                    <h3>{selectedNode.title} 핵심 정리</h3>
-                    <p className="lectureSummary">{selectedNode.grammarLecture.summary}</p>
-                    <div className="conceptList">
-                      {selectedNode.grammarLecture.concepts.map((concept) => (
-                        <span key={concept}>{concept}</span>
-                      ))}
-                    </div>
-                    <div className="patternLectureGrid">
-                      {selectedNode.grammarLecture.patterns.map((pattern) => (
-                        <article key={pattern.name}>
-                          <span>{pattern.name}</span>
-                          <strong><JapaneseText text={pattern.formula} /></strong>
-                          {pattern.examples.map((example) => (
-                            <p key={example}><JapaneseText text={example} /></p>
-                          ))}
-                        </article>
-                      ))}
-                    </div>
-                    <div className="lectureColumns">
-                      <article>
-                        <h4>자주 틀리는 부분</h4>
-                        {selectedNode.grammarLecture.pitfalls.map((pitfall) => (
-                          <p key={pitfall}>{pitfall}</p>
-                        ))}
-                      </article>
-                      <article>
-                        <h4>연습 과제</h4>
-                        {selectedNode.grammarLecture.drills.map((drill) => (
-                          <p key={drill}>{drill}</p>
-                        ))}
-                      </article>
-                    </div>
-                  </section>
-                )}
-                <div className="actionBar">
-                  <button className="ghostButton" type="button" onClick={() => setSessionSeed((value) => value + 1)}>
-                    <RotateCcw size={18} />
-                    새 예문
-                  </button>
-                  <button className="primaryButton" type="button" onClick={() => setActiveTab("test")}>
-                    테스트
-                    <ChevronRight size={18} />
-                  </button>
-                </div>
-              </>
+              </section>
             )}
+            <div className="actionBar">
+              <button className="ghostButton" type="button" onClick={() => setSessionSeed((value) => value + 1)}>
+                <RotateCcw size={18} />
+                새 예문
+              </button>
+              <button className="primaryButton" type="button" onClick={() => setActiveTab("test")}>
+                테스트
+                <ChevronRight size={18} />
+              </button>
+            </div>
           </section>
         </section>
       )}
@@ -878,39 +863,30 @@ export default function HomePage() {
               </div>
               <button type="button" onClick={resetTest}>새 문제</button>
             </div>
-            {!progress.unlockedNodeIds.includes(selectedNode.id) ? (
-              <div className="lockedNotice">
-                <Lock size={22} />
-                <p>잠긴 노드는 테스트할 수 없습니다.</p>
-              </div>
-            ) : (
-              <>
-                <div className="quizList">
-                  {quizSession.map((item, index) => (
-                    <article key={`${item.q}-${index}`}>
-                      <p><span>{index + 1}. </span><JapaneseText text={item.q} /></p>
-                      <div className="choiceList">
-                        {item.choices.map((choice) => (
-                          <button key={choice} type="button" className={answers[index] === choice ? "choice selected" : "choice"} onClick={() => setAnswers((current) => ({ ...current, [index]: choice }))}>
-                            <JapaneseText text={choice} />
-                          </button>
-                        ))}
-                      </div>
-                    </article>
-                  ))}
-                </div>
-                {testResult && (
-                  <div className={testResult.passed ? "resultBox pass" : "resultBox retry"}>
-                    <strong>{testResult.score}/{testResult.total}</strong>
-                    <span>{testResult.passed ? "통과했습니다. 다음 노드가 열렸습니다." : "조금만 더 복습하면 됩니다."}</span>
+            <div className="quizList">
+              {quizSession.map((item, index) => (
+                <article key={`${item.q}-${index}`}>
+                  <p><span>{index + 1}. </span><JapaneseText text={item.q} /></p>
+                  <div className="choiceList">
+                    {item.choices.map((choice) => (
+                      <button key={choice} type="button" className={answers[index] === choice ? "choice selected" : "choice"} onClick={() => setAnswers((current) => ({ ...current, [index]: choice }))}>
+                        <JapaneseText text={choice} />
+                      </button>
+                    ))}
                   </div>
-                )}
-                <div className="actionBar">
-                  <button className="ghostButton" type="button" onClick={() => setActiveTab("learn")}>학습 보기</button>
-                  <button className="primaryButton" type="button" onClick={submitTest}>채점하기</button>
-                </div>
-              </>
+                </article>
+              ))}
+            </div>
+            {testResult && (
+              <div className={testResult.passed ? "resultBox pass" : "resultBox retry"}>
+                <strong>{testResult.score}/{testResult.total}</strong>
+                <span>{testResult.passed ? "통과했습니다. 다음 노드가 권장 순서로 표시됩니다." : "조금만 더 복습하면 됩니다."}</span>
+              </div>
             )}
+            <div className="actionBar">
+              <button className="ghostButton" type="button" onClick={() => setActiveTab("learn")}>학습 보기</button>
+              <button className="primaryButton" type="button" onClick={submitTest}>채점하기</button>
+            </div>
           </section>
         </section>
       )}
