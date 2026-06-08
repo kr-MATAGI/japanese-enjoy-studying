@@ -380,38 +380,63 @@ p {
 }
 
 .miniPath {
-  display: flex;
-  align-items: center;
+  display: grid;
   gap: 8px;
-  overflow-x: auto;
   padding: 3px 0;
 }
 
-.pathDot {
+.pathStep {
   display: grid;
-  min-width: 50px;
-  height: 50px;
-  place-items: center;
-  border: 2px solid var(--line);
-  border-radius: 50%;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 9px;
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
   background: #ffffff;
+  color: var(--ink);
+  text-align: left;
   font-weight: 900;
 }
 
-.pathDot.open,
+.pathStep span {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: var(--blue);
+  font-size: 0.8rem;
+}
+
+.pathStep strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+.pathStep.open,
 .nodeIcon.open {
   border-color: var(--blue);
   color: var(--blue);
 }
 
-.pathDot.done,
+.pathStep.done,
 .nodeIcon.done {
   border-color: var(--teal);
   background: #e9f8f5;
   color: var(--teal);
 }
 
-.pathDot.locked,
+.pathStep.done span {
+  background: #dff6f1;
+  color: var(--teal);
+}
+
+.pathStep.locked,
 .nodeIcon.locked {
   color: #98a2b3;
 }

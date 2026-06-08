@@ -775,9 +775,10 @@ export default function HomePage() {
               <button type="button" onClick={() => setActiveTab("roadmap")}>전체 보기</button>
             </div>
             <div className="miniPath">
-              {skillNodes.slice(0, 6).map((node) => (
-                <button key={node.id} className={progress.passedNodeIds.includes(node.id) ? "pathDot done" : "pathDot open"} onClick={() => selectNode(node)} type="button">
-                  {progress.passedNodeIds.includes(node.id) ? <Check size={16} /> : node.level}
+              {skillNodes.slice(0, 6).map((node, index) => (
+                <button key={node.id} className={progress.passedNodeIds.includes(node.id) ? "pathStep done" : "pathStep open"} onClick={() => selectNode(node)} type="button">
+                  <span>{progress.passedNodeIds.includes(node.id) ? <Check size={14} /> : index + 1}</span>
+                  <strong>{node.title}</strong>
                 </button>
               ))}
             </div>
